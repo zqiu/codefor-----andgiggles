@@ -1,0 +1,87 @@
+#!/usr/bin/php5
+<?php
+
+//Main loop
+echo "PWNIDS v0.1.1337 running...\n";
+while(true)
+{
+	ProcessTick();
+	Sleep(1);
+}
+
+function ProcessTick()
+{
+	//Make a list of known shells
+	$shells = file("/etc/shells");
+
+	$procs = explode("\n", `ps -e`);
+	foreach($procs as $proc)
+	{
+		//Get process info
+		if($proc == "")
+			continue;
+		$proc = trim($proc);
+		for($i=0; $i<5; $i++)
+			$proc = str_replace("  ", " ", $proc);
+		$pinfo = explode(" ", $proc);
+
+		//Check if it's a shell
+		$pid = intval($pinfo[0]);
+		$target = @readlink("/proc/$pid/exe");
+		if($target == "")
+			continue;
+		$is_shell = 0;
+		foreach($shells as $shell)
+		{
+			$shell = trim($shell);
+			if(substr_count($target, $shell))
+			{
+				$is_shell = 1;
+				break;
+			}
+		}
+		if($is_shell)
+		{
+			//It's a shell
+			//Look up stdin and see what it points to
+			$stdin_fd = readlink("/proc/$pid/fd/0");
+			if(
+				(substr_count($stdin_fd, "pipe") != 0) ||
+				(substr_count($stdin_fd, "socket") != 0)
+			  )
+			{
+				$time = trim(`date`);
+				echo "[$time] Found possible backdoor: process $pid ($target) has stdin $stdin_fd\n";
+
+				//Print info so we can figure out how they got in
+				PrintProcessChain($pid, 4);
+
+				//Nuke it
+				echo "    Eliminating threat\n";
+				posix_kill($pid, 9);
+			}
+		}
+
+	}
+}
+
+function PrintProcessChain($pid, $indent)
+{
+	if($pid == 0)
+		return;
+	$status = `cat /proc/$pid/status | grep PPid`;
+	$fs = explode("\t", $status);
+	$ppid = intval($fs[1]);
+	if($ppid == 0)
+		return;
+	$pargs = `cat /proc/$ppid/cmdline`;
+	for($i=0; $i<$indent; $i++)
+		echo " ";
+	$uid = `ps ux --pid $ppid | tail -n 1`;
+	$ue = explode(" ", $uid);
+	$uid = intval($ue[0]);
+	echo    "Parent: $ppid (uid $uid, args $pargs)\n";
+	PrintProcessChain($ppid, $indent+4);
+}
+
+?>
