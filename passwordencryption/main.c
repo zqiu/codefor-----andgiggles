@@ -6,7 +6,7 @@
 int main(int argc, char **argv){
 	bool encrypt;
 	FILE * readf, writef;
-	char * filename,tmp,data;
+	char * filename,tmp,password,data;
 	if(argc != 3){
 		printf("error: need 2 arguments. Name of file and 0 for encryption\n");
 		exit(EXIT_FAILURE);
@@ -26,7 +26,7 @@ int main(int argc, char **argv){
 		}
 		writef = fopen(strcat(tmp,".q"),"r");
 		if(writef){
-			printf("file %s already exist. continue y?",tmp);
+			printf("file %s already exist. continue y? \n",tmp);
 			scanf("%c",data);
 			if(!strcmp(data,"y")){
 				exit(EXIT_SUCCESS);
@@ -34,6 +34,12 @@ int main(int argc, char **argv){
 		}
 		fclose(writef);
 		writef = fopen(tmp,"w");
+		printf("password?\n");
+		scanf("%c",password);
+		if(strlen(password) > 20 || strlen(password) < 1 ){
+			printf("error: password must be less than 20 char and not be empty\n");
+			exit(EXIT_FAILURE);
+		}
 		
 		//code to come
 		
