@@ -15,7 +15,7 @@ int main(int argc, char **argv){
 	filename = strtok(argv[1],".");
 	strcpy(tmp,filename);
 	if(encrypt){
-		if(!strcmp(strtok(NULL,"."),"txt")){
+		if(!strcmp(strtok(NULL,"."),"txt\n")){
 			printf("error: first argument is not a text file\n");
 			exit(EXIT_FAILURE);
 		}
@@ -24,7 +24,7 @@ int main(int argc, char **argv){
 			printf("error: file does not exist\n");
 			exit(EXIT_FAILURE);
 		}
-		writef = fopen(strcat(tmp,".q"),"r");
+		writef = fopen(strcat(tmp,".q\n"),"r");
 		if(writef){
 			printf("file %s already exist. continue y? \n",tmp);
 			scanf("%c",data);
