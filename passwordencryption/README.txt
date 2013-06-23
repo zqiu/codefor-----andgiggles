@@ -1,0 +1,1 @@
+This directory is meant to house a password encryption program. It reality it can encrpt any txt file into an encrypet format but it is mainly meant to be used as an password encryption program.
