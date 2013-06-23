@@ -5,15 +5,15 @@
 
 int main(int argc, char **argv){
 	bool encrypt;
-	FILE * readf, writef;
-	char * filename,tmp,password,data;
+	FILE * readf, * writef;
+	char *filename, *tmp, *password, *data;
 	if(argc != 3){
 		printf("error: need 2 arguments. Name of file and 0 for encryption\n");
 		exit(EXIT_FAILURE);
 	}
 	encrypt = (atoi(argv[2])==0?1:0);
 	filename = strtok(argv[1],".");
-	strcat(tmp,filename);
+	strcpy(tmp,filename);
 	if(encrypt){
 		if(!strcmp(strtok(NULL),"txt"){
 			printf("error: first argument is not a text file\n");
