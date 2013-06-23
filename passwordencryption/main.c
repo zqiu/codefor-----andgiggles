@@ -15,7 +15,7 @@ int main(int argc, char **argv){
 	filename = strtok(argv[1],".");
 	strcpy(tmp,filename);
 	if(encrypt){
-		if(!strcmp(strtok(NULL),"txt"){
+		if(!strcmp(strtok(NULL,"."),"txt")){
 			printf("error: first argument is not a text file\n");
 			exit(EXIT_FAILURE);
 		}
