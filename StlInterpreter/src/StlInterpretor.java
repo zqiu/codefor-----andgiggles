@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import java.nio.ByteBuffer;
+
 public class StlInterpretor {
 
 	private String StLName = "";
@@ -58,6 +60,7 @@ public class StlInterpretor {
 	 */
 	boolean interpretdata(){
 		int i,j,k,depth;
+		ByteBuffer buf;
 		if(!readdata){
 			System.out.println("data not read from Stl file");
 			return false;
@@ -68,6 +71,27 @@ public class StlInterpretor {
 		for(j = 0; j < 4; i++, j++){
 			int offset = 3 - j;
 			numfaces += data[i] & 0xFF << offset; 
+		}
+		for(j = 0; j < numfaces; j++){
+			for(k = 0; k < 4; k++){
+				for(depth = 0; depth < 3; depth++, i += 4){
+					buf = ByteBuffer.wrap(data, i, 4);
+					switch(k){
+						case 0:
+							vector[k][depth] = buf.getFloat();
+							break;
+						case 1:
+							vertex1[k][depth] = buf.getFloat();
+							break;
+						case 2:
+							vertex2[k][depth] = buf.getFloat();
+							break;
+						default:
+							vertex3[k][depth] = buf.getFloat();
+							break;
+					}
+				}
+			}
 		}
 		return true;
 	}
