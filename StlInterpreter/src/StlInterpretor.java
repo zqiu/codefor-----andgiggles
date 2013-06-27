@@ -12,7 +12,7 @@ public class StlInterpretor {
 	private float vector[][], vertex1[][], vertex2[][], vertex3[][];
 	private byte data[];
 	private boolean readdata = false;
-	private long numfaces;//to do maybe change to big number? since 
+	private long numfaces; //to do maybe change to big number? since 
 	//java dosen't do unsigned variables
 	/**
 	 * @param args
@@ -24,6 +24,7 @@ public class StlInterpretor {
 	/** 
 	 * 	Reads in a binary file and returns a byte array.
 	 *  @param Filename name of the file
+	 *  @return a reference to the data array
 	 * */ 
 	byte[] read(String FileName){
 		int read = 0, temp = 0;
@@ -52,7 +53,8 @@ public class StlInterpretor {
 	}
 	
 	/**
-	 * 
+	 * takes your binary array and interprets your array into useful information
+	 * @return boolean representing whether function was successful
 	 */
 	boolean interpretdata(){
 		int i,j;
