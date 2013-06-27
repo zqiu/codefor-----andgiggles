@@ -94,6 +94,7 @@ public class StlInterpretor {
 					}
 				}
 			}
+			i += 2; //to skip the attribute byte that occurs after each face
 		}
 		return true;
 	}
