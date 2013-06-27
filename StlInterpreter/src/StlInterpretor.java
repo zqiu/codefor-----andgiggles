@@ -12,7 +12,8 @@ public class StlInterpretor {
 	private float vector[][], vertex1[][], vertex2[][], vertex3[][];
 	private byte data[];
 	private boolean readdata = false;
-	private long numfaces;
+	private long numfaces;//to do maybe change to big number? since 
+	//java dosen't do unsigned variables
 	/**
 	 * @param args
 	 */
