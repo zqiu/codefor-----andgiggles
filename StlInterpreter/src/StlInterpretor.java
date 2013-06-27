@@ -108,6 +108,9 @@ public class StlInterpretor {
 		return StLName;
 	}
 	
+	/**
+	 * @return number of faces. 0 if you did not read in a file
+	 */
 	public long getNumfaces(){
 		return readdata?numfaces:0;
 	}
