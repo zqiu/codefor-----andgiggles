@@ -10,6 +10,8 @@ import java.io.IOException;
 
 import java.nio.ByteBuffer;
 
+import java.lang.Exception;
+
 public class StlInterpretor {
 
 	private String StLName = "";
@@ -30,7 +32,7 @@ public class StlInterpretor {
 	 * @param Filename name of the file
 	 * @return a reference to the data array
 	 * */
-	byte[] read(String FileName){
+	public byte[] read(String FileName){
 		int read = 0, temp = 0;
 		System.out.println("Reading from " + FileName);
 		File file = new File(FileName);
@@ -60,7 +62,7 @@ public class StlInterpretor {
 	 * takes your binary array and interprets your array into useful information
 	 * @return boolean representing whether function was successful
 	 */
-	boolean interpretdata(){
+	public boolean interpretData(){
 		int i,j,k,depth;
 		ByteBuffer buf;
 		if(!readdata){
@@ -97,5 +99,64 @@ public class StlInterpretor {
 			i += 2; //to skip the attribute byte that occurs after each face
 		}
 		return true;
+	}
+
+	/**
+	 * @return string representing the name of file. Blank if you did not read anything
+	 */
+	public String getName(){
+		return StLName;
+	}
+	
+	public long getNumfaces(){
+		return readdata?numfaces:0;
+	}
+	
+	/**
+	 * @return two dimensional array of floats with the normal vectors of each triangle
+	 * @throws Exception if no file is read
+	 */
+	public float[][] getVector() throws Exception{
+		if (!readdata){
+			throw new Exception("file not read");
+		}else{
+			return vector;
+		}
+	}
+
+	/**
+	 * @return two dimensional array of floats with vertex1 of each triangle
+	 * @throws Exception if no file is read
+	 */
+	public float[][] getVertex1() throws Exception{
+		if(!readdata){
+			throw new Exception("File not read");
+		}else{
+			return vertex1;
+		}
+	}
+	
+	/**
+	 * @return two dimensional array of floats with vertex2 of each triangle
+	 * @throws Exception if no file is read
+	 */
+	public float[][] getVertex2() throws Exception{
+		if(!readdata){
+			throw new Exception("File not read");
+		}else{
+			return vertex2;
+		}
+	}
+
+	/**
+	 * @return two dimensional array of floats with vertex3 of each triangle
+	 * @throws Exception if no file is read
+	 */
+	public float[][] getVertex3() throws Exception{
+		if(!readdata){
+			throw new Exception("File not read");
+		}else{
+			return vertex3;
+		}
 	}
 }
