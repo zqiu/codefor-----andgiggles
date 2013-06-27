@@ -27,6 +27,13 @@ public class StlInterpretor {
 
 	}
 
+	public StlInterpretor(String fname){
+		read(fname);
+		if(!interpretData()){
+			System.out.println("can't seem to read file");
+		}
+	}
+	
 	/**
 	 * Reads in a binary file and returns a byte array.
 	 * @param Filename name of the file
