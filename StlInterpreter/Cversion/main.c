@@ -30,6 +30,7 @@ int main(int argc, char **argv){
 	}
 	read(readf,name,&numfaces,normal,x,y,z)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	fclose(readf);
+	//printf("%f",normal[0][0]);
 	exit(EXIT_SUCCESS);
 }
 
@@ -42,10 +43,11 @@ bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float** normal
 	
 	name = (BYTE*) malloc(sizeof(BYTE) * 80);
 	if(!getName(file,name)) return false;
+	printf("name: %s \n",name);
 	
 	if(!getNumTriangle(file,tempnumtriangle)) return false;
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
-		*numtriangles += (unsigned long) tempnumtriangle[i] << (3 - i);
+		*numtriangles += (unsigned long) tempnumtriangle[i] << i;
 	}
 	printf("num of triangles: %ul \n",*numtriangles);
 	if(*numtriangles >UINT_MAX){
