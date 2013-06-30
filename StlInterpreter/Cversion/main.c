@@ -4,7 +4,7 @@
 #include <limits.h>
 
 typedef unsigned char BYTE;
-bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float** normal, float** x, float** y, float** z);
+bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** x, float*** y, float*** z);
 bool getName(FILE * file, BYTE * buffer);
 bool getNumTriangle(FILE * file, BYTE * buffer);
 bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
@@ -28,21 +28,22 @@ int main(int argc, char **argv){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
-	read(readf,name,&numfaces,normal,x,y,z)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
+	read(readf,name,&numfaces,&normal,&x,&y,&z)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	fclose(readf);
-	//printf("%f",normal[0][0]);
+	printf("%f",normal[0][0]);
 	exit(EXIT_SUCCESS);
 }
 
-bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float** normal, float** x, float** y, float** z){
+bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** x, float*** y, float*** z){
 	unsigned long i;
 	int j,k;
 	BYTE * tempnumtriangle = (BYTE *) malloc(sizeof(BYTE) * 4);
 	BYTE * temptrianglebuffer = (BYTE *) malloc(sizeof(BYTE) * 48);
 	BYTE * throwaway = (BYTE *) malloc(sizeof(BYTE) * 2);
 	
-	name = (BYTE*) malloc(sizeof(BYTE) * 80);
+	name = (BYTE*) malloc(sizeof(BYTE) * 81);
 	if(!getName(file,name)) return false;
+	name[80] = '\0';
 	printf("name: %s \n",name);
 	
 	if(!getNumTriangle(file,tempnumtriangle)) return false;
@@ -54,15 +55,15 @@ bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float** normal
 		printf("note:number of triangles is greater than value of unsigned int. Program might not function correctly\n");
 	}
 	
-	normal = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
-	x = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
-	y = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
-	z = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
+	*normal = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
+	*x = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
+	*y = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
+	*z = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
 	for(i = 0; i < *numtriangles; ++i){
-		normal[i] = (float *) malloc(sizeof(float) * 3);
-		x[i] = (float *) malloc(sizeof(float) * 3);
-		y[i] = (float *) malloc(sizeof(float) * 3);
-		z[i] = (float *) malloc(sizeof(float) * 3);
+		(*normal)[i] = (float *) malloc(sizeof(float) * 3);
+		(*x)[i] = (float *) malloc(sizeof(float) * 3);
+		(*y)[i] = (float *) malloc(sizeof(float) * 3);
+		(*z)[i] = (float *) malloc(sizeof(float) * 3);
 	}
 	
 	for(i = 0; i < *numtriangles; ++i){
@@ -75,16 +76,16 @@ bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float** normal
 				sfloat.b[3] = k*12 + j*4 + 3;
 				switch(k){
 					case 0:
-						normal[i][j] = sfloat.f;
+						(*normal)[i][j] = sfloat.f;
 						break;
 					case 1:
-						x[i][j] = sfloat.f;
+						(*x)[i][j] = sfloat.f;
 						break;
 					case 2:
-						y[i][j] = sfloat.f;
+						(*y)[i][j] = sfloat.f;
 						break;
 					default:
-						z[i][j] = sfloat.f;
+						(*z)[i][j] = sfloat.f;
 						break;
 				}
 			}
