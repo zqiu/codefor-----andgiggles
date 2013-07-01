@@ -8,6 +8,7 @@ bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** norma
 bool getName(FILE * file, BYTE * buffer);
 bool getNumTriangle(FILE * file, BYTE * buffer);
 bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
+void printOutArray(float *** array, unsigned long length, int depth);
 
 union{
 	float f;
@@ -30,7 +31,10 @@ int main(int argc, char **argv){
 	}
 	read(readf,name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	fclose(readf);
-	printf("%f",normal[0][0]);
+	printOutArray(&normal,numfaces,3);
+	printOutArray(&v1,numfaces,3);
+	printOutArray(&v2,numfaces,3);
+	printOutArray(&v3,numfaces,3);
 	exit(EXIT_SUCCESS);
 }
 
@@ -50,7 +54,7 @@ bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** norma
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
 		*numtriangles += (unsigned long) tempnumtriangle[i] << i;
 	}
-	printf("num of triangles: %d \n",*numtriangles);
+	printf("num of triangles: %lu \n",*numtriangles);
 	if(*numtriangles >UINT_MAX){
 		printf("note:number of triangles is greater than value of unsigned int. Program might not function correctly\n");
 	}
@@ -109,4 +113,15 @@ bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway){
 	if(numread != 48) return false;
 	numread = fread((void*)throwaway,1,2,file);
 	return (numread == 2)?true:false;
+}
+
+void printOutArray(float *** array, unsigned long length, int depth){
+	unsigned long i;
+	int j;
+	for(i = 0; i < length; ++i){
+		for(j = 0; j < depth; ++j){
+			printf("%lu,%d:%f \n",i,j,(*array)[i][j]);
+		}
+		printf("\n");
+	}
 }
