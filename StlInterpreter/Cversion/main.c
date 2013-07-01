@@ -70,10 +70,10 @@ bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** norma
 		if(!getNextTriangle(file,temptrianglebuffer,throwaway))return false;
 		for(k = 0; k < 4; ++k){
 			for(j = 0; j < 3; ++j){
-				sfloat.b[0] = k*12 + j*4;
-				sfloat.b[1] = k*12 + j*4 + 1;
-				sfloat.b[2] = k*12 + j*4 + 2;
-				sfloat.b[3] = k*12 + j*4 + 3;
+				sfloat.b[0] = temptrianglebuffer[k*12 + j*4];
+				sfloat.b[1] = temptrianglebuffer[k*12 + j*4 + 1];
+				sfloat.b[2] = temptrianglebuffer[k*12 + j*4 + 2];
+				sfloat.b[3] = temptrianglebuffer[k*12 + j*4 + 3];
 				switch(k){
 					case 0:
 						(*normal)[i][j] = sfloat.f;
