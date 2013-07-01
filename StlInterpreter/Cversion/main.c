@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <string.h>
 
 typedef unsigned char BYTE;
 bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
@@ -16,7 +17,8 @@ union{
 }sfloat;
 
 int main(int argc, char **argv){
-	FILE * readf;
+	FILE * readf, *writef;
+	char *filename,*data, *tmp;
 	BYTE * name;
 	unsigned long numfaces;
 	float ** normal, **v1, **v2, **v3;
@@ -24,13 +26,31 @@ int main(int argc, char **argv){
 		printf("error: need an argument: Name of file\n");
 		exit(EXIT_FAILURE);
 	}
+	strcpy(tmp,argv[1]);
+	filename = strtok(tmp,".");
+	if(!strcmp(strtok(NULL,"."),"STL\n")){
+			printf("error: first argument is not a stl file\n");
+			exit(EXIT_FAILURE);
+	}
 	readf = fopen(argv[1],"r");
 	if(!readf){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
+	writef = fopen(strcat(filename,".ttl\n"),"r");
+	if(writef){
+		printf("file %s already exist. continue y? \n",filename);
+		scanf("%c",data);
+		if(!strcmp(data,"y")){
+			exit(EXIT_SUCCESS);
+		}
+	}
+	fclose(writef);
+	writef = fopen(filename,"w");
 	read(readf,name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
+	
 	fclose(readf);
+	fclose(writef);
 	printOutArray(&normal,numfaces,3);
 	printOutArray(&v1,numfaces,3);
 	printOutArray(&v2,numfaces,3);
