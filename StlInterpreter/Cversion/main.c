@@ -4,11 +4,12 @@
 #include <limits.h>
 
 typedef unsigned char BYTE;
-bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
+bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
 bool getName(FILE * file, BYTE * buffer);
 bool getNumTriangle(FILE * file, BYTE * buffer);
 bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
+void writefile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
 
 union{
 	float f;
@@ -29,7 +30,7 @@ int main(int argc, char **argv){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
-	read(readf,name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
+	read(readf,&name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	fclose(readf);
 	printOutArray(&normal,numfaces,3);
 	printOutArray(&v1,numfaces,3);
@@ -38,17 +39,23 @@ int main(int argc, char **argv){
 	exit(EXIT_SUCCESS);
 }
 
-bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
+void writefile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
+	fputc('#',file);
+	fputs(*name,file);
+	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
+}
+
+bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
 	unsigned long i;
 	int j,k;
 	BYTE * tempnumtriangle = (BYTE *) malloc(sizeof(BYTE) * 4);
 	BYTE * temptrianglebuffer = (BYTE *) malloc(sizeof(BYTE) * 48);
 	BYTE * throwaway = (BYTE *) malloc(sizeof(BYTE) * 2);
 	
-	name = (BYTE*) malloc(sizeof(BYTE) * 81);
-	if(!getName(file,name)) return false;
-	name[80] = '\0';
-	printf("name: %s \n",name);
+	*name = (BYTE*) malloc(sizeof(BYTE) * 81);
+	if(!getName(file,*name)) return false;
+	(*name)[80] = '\0';
+	printf("name: %s \n",*name);
 	
 	if(!getNumTriangle(file,tempnumtriangle)) return false;
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
