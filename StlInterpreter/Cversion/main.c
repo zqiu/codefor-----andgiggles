@@ -57,6 +57,7 @@ int main(int argc, char **argv){
 	
 	read(readf,&name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3);
+	printf("writing sucessful\n");
 	//printOutArray(&normal,numfaces,3);
 	//printOutArray(&v1,numfaces,3);
 	//printOutArray(&v2,numfaces,3);
@@ -79,9 +80,9 @@ int main(int argc, char **argv){
 }
 
 void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
-	float** points;
+	float** points, *tmp;
 	char buffer[20];
-	unsigned long numpoints,i;
+	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
 	fputc('#',file);
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
@@ -101,8 +102,46 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		sprintf(buffer,"%.6f",points[i][2]);
 		fputs(buffer,file);
 		fputs("\"^^xsd:float.\n",file);
+		printf("writing point %lu\n",i);
 	}
 	printf("finished writing all the points");
+	for(i = 0; i < *numtriangles;++i){
+		for(j = 0; j < numpoints; ++j){
+			tmp = points[j];
+			if(comparePoints(&tmp,&((*v1)[i]))){
+				p1 = j;
+			}
+			if(comparePoints(&tmp,&((*v2)[i]))){
+				p2 = j;
+			}
+			if(comparePoints(&tmp,&((*v3)[i]))){
+				p3 = j;
+			}
+		}
+		fputs(":triangle",file);
+		sprintf(buffer,"%lu",i);
+		fputs(buffer,file);
+		fputs(" a :triangle;\n :x \"",file);
+		sprintf(buffer,"%.6f",(*normal)[i][0]);
+		fputs(buffer,file);
+		fputs("\"^^xsd:float;\n :y \"",file);
+		sprintf(buffer,"%.6f",(*normal)[i][1]);
+		fputs(buffer,file);
+		fputs("\"^^xsd:float;\n :z \"",file);
+		sprintf(buffer,"%.6f",(*normal)[i][2]);
+		fputs(buffer,file);
+		fputs("\"^^xsd:float;\n :vertex1 :point",file);
+		sprintf(buffer,"%lu",p1);
+		fputs(buffer,file);
+		fputs(";\n :vertex2 :point",file);
+		sprintf(buffer,"%lu",p2);
+		fputs(buffer,file);
+		fputs(";\n :vertex3 :point",file);
+		sprintf(buffer,"%lu",p3);
+		fputs(buffer,file);
+		fputs(".\n",file);
+		printf("writing triangle %lu\n",i);
+	}
 	for(i = 0; i < numpoints; ++i){
 		free(points[i]);
 	}
