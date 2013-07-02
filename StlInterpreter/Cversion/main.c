@@ -85,6 +85,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
+	printf("there are %lu points\n",numpoints);
 }
 
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3, float*** writeto){
@@ -93,7 +94,7 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 	for(i = 0; i < maxpoints; ++i){
 		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
-	for(i = 0; i < maxpoints; ++i){
+	for(i = 0; i < *numtriangles; ++i){
 		if(!inSet(writeto,&maxpoints,&((*v1)[i]))){
 			(*writeto)[numpoints][0] = (*v1)[i][0];
 			(*writeto)[numpoints][1] = (*v1)[i][1];
