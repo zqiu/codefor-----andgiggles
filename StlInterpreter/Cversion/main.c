@@ -22,7 +22,7 @@ union{
 
 int main(int argc, char **argv){
 	FILE * readf, *writef;
-	char cpy[81],*filename, data, *tmp;
+	char cpy[81], *filename, *extension = NULL, *next, data;
 	BYTE * name;
 	unsigned long numfaces,i;
 	float ** normal, **v1, **v2, **v3;
@@ -38,9 +38,13 @@ int main(int argc, char **argv){
 	}
 	
 	strncpy(cpy,argv[1],80);
-	filename = strtok(cpy,"./");
-	tmp = strtok(NULL,"./");
-	if(!tmp || !strcmp(tmp,"STL\n")){
+	next = strtok(cpy,"./");
+	while(next){
+		filename = extension;
+		extension = next;
+		next = strtok(NULL,"./");
+	}
+	if(!extension || strcmp(extension,"STL")){
 			printf("error: first argument is not a stl file\n");
 			exit(EXIT_FAILURE);
 	}
@@ -54,6 +58,7 @@ int main(int argc, char **argv){
 	}
 	fclose(writef);
 	writef = fopen(filename,"w");
+	printf("writing file to %s\n",filename);
 	
 	read(readf,&name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3);
