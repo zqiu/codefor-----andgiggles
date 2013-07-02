@@ -1,1 +1,3 @@
-todo: check for null pointers
+todo: 
+check for null pointers
+add comments
