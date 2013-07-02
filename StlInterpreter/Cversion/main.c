@@ -92,14 +92,14 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
 	for(i = 0; i < maxpoints; ++i){
-		if(!inSet(ans,&maxpoints,&((*v1)[i]))){
+		if(!inSet(writeto,&maxpoints,&((*v1)[i]))){
 			(*writeto)[numpoints][0] = (*v1)[i][0];
 			(*writeto)[numpoints][1] = (*v1)[i][1];
 			(*writeto)[numpoints][2] = (*v1)[i][2];
 			numpoints++;
 		}
 		if(!comparePoints(&((*v1)[i]),&((*v2)[i]))){
-			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
+			if(!inSet(writeto,&maxpoints,&((*v2)[i]))){
 				(*writeto)[numpoints][0] = (*v2)[i][0];
 				(*writeto)[numpoints][1] = (*v2)[i][1];
 				(*writeto)[numpoints][2] = (*v2)[i][2];
@@ -107,7 +107,7 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 			}
 		}
 		if(!comparePoints(&((*v1)[i]),&((*v3)[i])) && !comparePoints(&((*v1)[i]),&((*v3)[i]))){
-			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
+			if(!inSet(writeto,&maxpoints,&((*v2)[i]))){
 				(*writeto)[numpoints][0] = (*v3)[i][0];
 				(*writeto)[numpoints][1] = (*v3)[i][1];
 				(*writeto)[numpoints][2] = (*v3)[i][2];
