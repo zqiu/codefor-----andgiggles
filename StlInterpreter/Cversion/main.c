@@ -10,9 +10,9 @@ bool getName(FILE * file, BYTE * buffer);
 bool getNumTriangle(FILE * file, BYTE * buffer);
 bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
-void writefile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
-float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3);
-bool comparepoints(float ** p1, float **p2);
+void writeFile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
+float *** allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3);
+bool comparePoints(float ** p1, float **p2);
 bool inSet(float *** set, unsigned long * size, float ** p);
 
 union{
@@ -22,14 +22,16 @@ union{
 
 int main(int argc, char **argv){
 	FILE * readf, *writef;
-	char *filename,*data, *tmp;
+	char *filename,data, *tmp;
 	BYTE * name;
-	unsigned long numfaces;
+	unsigned long numfaces,i;
 	float ** normal, **v1, **v2, **v3;
 	if(argc != 2){
 		printf("error: need an argument: Name of file\n");
 		exit(EXIT_FAILURE);
 	}
+	tmp = (char*)malloc(sizeof(char)*81);
+	filename = (char*)malloc(sizeof(char)*81);
 	strcpy(tmp,argv[1]);
 	filename = strtok(tmp,".");
 	if(!strcmp(strtok(NULL,"."),"STL\n")){
@@ -44,8 +46,8 @@ int main(int argc, char **argv){
 	writef = fopen(strcat(filename,".ttl\n"),"r");
 	if(writef){
 		printf("file %s already exist. continue y? \n",filename);
-		scanf("%c",data);
-		if(!strcmp(data,"y")){
+		scanf("%c",&data);
+		if(data != 'y'){
 			exit(EXIT_SUCCESS);
 		}
 	}
@@ -58,17 +60,30 @@ int main(int argc, char **argv){
 	printOutArray(&v1,numfaces,3);
 	printOutArray(&v2,numfaces,3);
 	printOutArray(&v3,numfaces,3);
+	free(name);
+	free(filename);
+	free(tmp);
+	for(i = 0; i < numfaces; ++i){
+		free(normal[i]);
+		free(v1[i]);
+		free(v2[i]);
+		free(v3[i]);
+	}
+	free(normal);
+	free(v1);
+	free(v2);
+	free(v3);
 	exit(EXIT_SUCCESS);
 }
 
-void writefile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
+void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
 	fputc('#',file);
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
 	
 }
 
-float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3){
+float *** allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3){
 	unsigned long numpoints = 0,i,j,maxpoints = *numtriangles + 2;
 	float ** ans = (float**)malloc(sizeof(float*) * maxpoints);
 	for(i = 0; i < numpoints; ++i){
@@ -81,7 +96,7 @@ float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, floa
 			ans[numpoints][2] = (*v1)[i][2];
 			numpoints++;
 		}
-		if(!comparepoints(&((*v1)[i]),&((*v2)[i]))){
+		if(!comparePoints(&((*v1)[i]),&((*v2)[i]))){
 			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
 				ans[numpoints][0] = (*v2)[i][0];
 				ans[numpoints][1] = (*v2)[i][1];
@@ -89,7 +104,7 @@ float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, floa
 				numpoints++;
 			}
 		}
-		if(!comparepoints(&((*v1)[i]),&((*v3)[i])) && !comparepoints(&((*v1)[i]),&((*v3)[i]))){
+		if(!comparePoints(&((*v1)[i]),&((*v3)[i])) && !comparePoints(&((*v1)[i]),&((*v3)[i]))){
 			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
 				ans[numpoints][0] = (*v3)[i][0];
 				ans[numpoints][1] = (*v3)[i][1];
@@ -101,14 +116,14 @@ float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, floa
 	return &ans;
 }
 
-bool comparepoints(float ** p1, float **p2){
+bool comparePoints(float ** p1, float **p2){
 	return (*p1)[0] == (*p2)[0] && (*p1)[1] == (*p2)[1] && (*p1)[2] == (*p2)[2];
 }
 
 bool inSet(float *** set, unsigned long * size, float ** p){
 	unsigned long i;
 	for(i = 0; i < *size; ++i){
-		if(comparepoints(&((*set)[i]),p)) return true;
+		if(comparePoints(&((*set)[i]),p)) return true;
 	}
 	return false;
 }
@@ -170,6 +185,9 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 			}
 		}
 	}
+	free(tempnumtriangle);
+	free(temptrianglebuffer);
+	free(throwaway);
 	return true;
 }
 

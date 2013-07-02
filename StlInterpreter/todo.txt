@@ -1,2 +1,0 @@
-to do:
-add in delete or something to free memory
