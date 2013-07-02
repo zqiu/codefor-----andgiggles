@@ -5,11 +5,15 @@
 #include <string.h>
 
 typedef unsigned char BYTE;
-bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
+bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
 bool getName(FILE * file, BYTE * buffer);
 bool getNumTriangle(FILE * file, BYTE * buffer);
 bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
+void writefile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
+float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3);
+bool comparepoints(float ** p1, float **p2);
+bool inSet(float *** set, unsigned long * size, float ** p);
 
 union{
 	float f;
@@ -47,8 +51,7 @@ int main(int argc, char **argv){
 	}
 	fclose(writef);
 	writef = fopen(filename,"w");
-	read(readf,name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
-	
+	read(readf,&name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	fclose(readf);
 	fclose(writef);
 	printOutArray(&normal,numfaces,3);
@@ -58,17 +61,69 @@ int main(int argc, char **argv){
 	exit(EXIT_SUCCESS);
 }
 
-bool read(FILE * file, BYTE * name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
+void writefile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
+	fputc('#',file);
+	fputs(*name,file);
+	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
+	
+}
+
+float *** allpoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3){
+	unsigned long numpoints = 0,i,j,maxpoints = *numtriangles + 2;
+	float ** ans = (float**)malloc(sizeof(float*) * maxpoints);
+	for(i = 0; i < numpoints; ++i){
+		ans[i] = (float*)malloc(sizeof(float)*3);
+	}
+	for(i = 0; i < maxpoints; ++i){
+		if(!inSet(&ans,&maxpoints,&((*v1)[i]))){
+			ans[numpoints][0] = (*v1)[i][0];
+			ans[numpoints][1] = (*v1)[i][1];
+			ans[numpoints][2] = (*v1)[i][2];
+			numpoints++;
+		}
+		if(!comparepoints(&((*v1)[i]),&((*v2)[i]))){
+			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
+				ans[numpoints][0] = (*v2)[i][0];
+				ans[numpoints][1] = (*v2)[i][1];
+				ans[numpoints][2] = (*v2)[i][2];
+				numpoints++;
+			}
+		}
+		if(!comparepoints(&((*v1)[i]),&((*v3)[i])) && !comparepoints(&((*v1)[i]),&((*v3)[i]))){
+			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
+				ans[numpoints][0] = (*v3)[i][0];
+				ans[numpoints][1] = (*v3)[i][1];
+				ans[numpoints][2] = (*v3)[i][2];
+				numpoints++;
+			}
+		}
+	}
+	return &ans;
+}
+
+bool comparepoints(float ** p1, float **p2){
+	return (*p1)[0] == (*p2)[0] && (*p1)[1] == (*p2)[1] && (*p1)[2] == (*p2)[2];
+}
+
+bool inSet(float *** set, unsigned long * size, float ** p){
+	unsigned long i;
+	for(i = 0; i < *size; ++i){
+		if(comparepoints(&((*set)[i]),p)) return true;
+	}
+	return false;
+}
+
+bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
 	unsigned long i;
 	int j,k;
 	BYTE * tempnumtriangle = (BYTE *) malloc(sizeof(BYTE) * 4);
 	BYTE * temptrianglebuffer = (BYTE *) malloc(sizeof(BYTE) * 48);
 	BYTE * throwaway = (BYTE *) malloc(sizeof(BYTE) * 2);
 	
-	name = (BYTE*) malloc(sizeof(BYTE) * 81);
-	if(!getName(file,name)) return false;
-	name[80] = '\0';
-	printf("name: %s \n",name);
+	*name = (BYTE*) malloc(sizeof(BYTE) * 81);
+	if(!getName(file,*name)) return false;
+	(*name)[80] = '\0';
+	printf("name: %s \n",*name);
 	
 	if(!getNumTriangle(file,tempnumtriangle)) return false;
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
