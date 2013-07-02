@@ -22,7 +22,7 @@ union{
 
 int main(int argc, char **argv){
 	FILE * readf, *writef;
-	char *filename,data, *tmp;
+	char cpy[81],*filename, data, *tmp;
 	BYTE * name;
 	unsigned long numfaces,i;
 	float ** normal, **v1, **v2, **v3;
@@ -30,20 +30,20 @@ int main(int argc, char **argv){
 		printf("error: need an argument: Name of file\n");
 		exit(EXIT_FAILURE);
 	}
-	tmp = (char*)malloc(sizeof(char)*81);
-	filename = (char*)malloc(sizeof(char)*81);
-	strcpy(tmp,argv[1]);
-	filename = strtok(tmp,".");
-	if(!strcmp(strtok(NULL,"."),"STL\n")){
-			printf("error: first argument is not a stl file\n");
-			exit(EXIT_FAILURE);
-	}
 	readf = fopen(argv[1],"r");
 	if(!readf){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
-	writef = fopen(strcat(filename,".ttl\n"),"r");
+
+	strncpy(cpy,argv[1],80);
+	filename = strtok(cpy,".");
+	tmp = strtok(NULL,".");
+	if(!tmp || !strcmp(tmp,"STL")){
+			printf("error: first argument is not a stl file\n");
+			exit(EXIT_FAILURE);
+	}
+	writef = fopen(strcat(filename,".ttl"),"r");
 	if(writef){
 		printf("file %s already exist. continue y? \n",filename);
 		scanf("%c",&data);
@@ -54,12 +54,13 @@ int main(int argc, char **argv){
 	fclose(writef);
 	writef = fopen(filename,"w");
 	read(readf,&name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
+	writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3);
+	//printOutArray(&normal,numfaces,3);
+	//printOutArray(&v1,numfaces,3);
+	//printOutArray(&v2,numfaces,3);
+	//printOutArray(&v3,numfaces,3);
 	fclose(readf);
 	fclose(writef);
-	printOutArray(&normal,numfaces,3);
-	printOutArray(&v1,numfaces,3);
-	printOutArray(&v2,numfaces,3);
-	printOutArray(&v3,numfaces,3);
 	free(name);
 	free(filename);
 	free(tmp);
