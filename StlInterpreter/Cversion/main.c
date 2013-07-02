@@ -85,7 +85,7 @@ int main(int argc, char **argv){
 }
 
 void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
-	float** points, *tmp;
+	float** points, *tmp, percent = 0.0;
 	char buffer[20];
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
 	fputc('#',file);
@@ -107,9 +107,13 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		sprintf(buffer,"%.6f",points[i][2]);
 		fputs(buffer,file);
 		fputs("\"^^xsd:float.\n",file);
-		printf("writing point %lu\n",i);
+		if(i*100/numpoints > percent + 5){
+			percent = ((i*100/numpoints)/5)*5;
+			printf("%.0f%% of points written\n",percent);
+		}
 	}
 	printf("finished writing all the points\n");
+	percent = 0.0;
 	for(i = 0; i < *numtriangles;++i){
 		for(j = 0; j < numpoints; ++j){
 			tmp = points[j];
@@ -145,7 +149,10 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		sprintf(buffer,"%lu",p3);
 		fputs(buffer,file);
 		fputs(".\n",file);
-		printf("writing triangle %lu\n",i);
+		if(i*100/(*numtriangles) > percent + 5){
+			percent = ((i*100/(*numtriangles))/5)*5;
+			printf("%.0f%% of triangles written\n",percent);
+		}
 	}
 	for(i = 0; i < numpoints; ++i){
 		free(points[i]);
