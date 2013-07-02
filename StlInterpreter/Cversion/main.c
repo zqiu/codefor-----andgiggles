@@ -35,11 +35,10 @@ int main(int argc, char **argv){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
-
 	strncpy(cpy,argv[1],80);
-	filename = strtok(cpy,".");
-	tmp = strtok(NULL,".");
-	if(!tmp || !strcmp(tmp,"STL")){
+	filename = strtok(cpy,"./");
+	tmp = strtok(NULL,"./");
+	if(!tmp || !strcmp(tmp,"STL\n")){
 			printf("error: first argument is not a stl file\n");
 			exit(EXIT_FAILURE);
 	}
@@ -61,9 +60,6 @@ int main(int argc, char **argv){
 	//printOutArray(&v3,numfaces,3);
 	fclose(readf);
 	fclose(writef);
-	free(name);
-	free(filename);
-	free(tmp);
 	for(i = 0; i < numfaces; ++i){
 		free(normal[i]);
 		free(v1[i]);
@@ -74,6 +70,7 @@ int main(int argc, char **argv){
 	free(v1);
 	free(v2);
 	free(v3);
+	free(name);
 	exit(EXIT_SUCCESS);
 }
 
