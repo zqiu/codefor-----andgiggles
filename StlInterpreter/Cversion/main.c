@@ -80,12 +80,16 @@ int main(int argc, char **argv){
 
 void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
 	float** points;
-	unsigned long numpoints;
+	unsigned long numpoints,i;
 	fputc('#',file);
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
 	printf("there are %lu points\n",numpoints);
+	for(i = 0; i < numpoints; ++i){
+		free(points[i]);
+	}
+	free(points);
 }
 
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3, float*** writeto){
