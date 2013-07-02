@@ -104,7 +104,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		fputs("\"^^xsd:float.\n",file);
 		printf("writing point %lu\n",i);
 	}
-	printf("finished writing all the points");
+	printf("finished writing all the points\n");
 	for(i = 0; i < *numtriangles;++i){
 		for(j = 0; j < numpoints; ++j){
 			tmp = points[j];
