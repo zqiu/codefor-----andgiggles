@@ -11,7 +11,7 @@ bool getNumTriangle(FILE * file, BYTE * buffer);
 bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
 void writeFile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3);
-float *** allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3);
+unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3,float*** writeto);
 bool comparePoints(float ** p1, float **p2);
 bool inSet(float *** set, unsigned long * size, float ** p);
 
@@ -26,6 +26,7 @@ int main(int argc, char **argv){
 	BYTE * name;
 	unsigned long numfaces,i;
 	float ** normal, **v1, **v2, **v3;
+	
 	if(argc != 2){
 		printf("error: need an argument: Name of file\n");
 		exit(EXIT_FAILURE);
@@ -35,6 +36,7 @@ int main(int argc, char **argv){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
+	
 	strncpy(cpy,argv[1],80);
 	filename = strtok(cpy,"./");
 	tmp = strtok(NULL,"./");
@@ -52,12 +54,14 @@ int main(int argc, char **argv){
 	}
 	fclose(writef);
 	writef = fopen(filename,"w");
+	
 	read(readf,&name,&numfaces,&normal,&v1,&v2,&v3)?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3);
 	//printOutArray(&normal,numfaces,3);
 	//printOutArray(&v1,numfaces,3);
 	//printOutArray(&v2,numfaces,3);
 	//printOutArray(&v3,numfaces,3);
+	
 	fclose(readf);
 	fclose(writef);
 	for(i = 0; i < numfaces; ++i){
@@ -81,37 +85,37 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	
 }
 
-float *** allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3){
+unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3, float*** writeto){
 	unsigned long numpoints = 0,i,j,maxpoints = *numtriangles + 2;
-	float ** ans = (float**)malloc(sizeof(float*) * maxpoints);
-	for(i = 0; i < numpoints; ++i){
-		ans[i] = (float*)malloc(sizeof(float)*3);
+	*writeto = (float**)malloc(sizeof(float*) * maxpoints);
+	for(i = 0; i < maxpoints; ++i){
+		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
 	for(i = 0; i < maxpoints; ++i){
-		if(!inSet(&ans,&maxpoints,&((*v1)[i]))){
-			ans[numpoints][0] = (*v1)[i][0];
-			ans[numpoints][1] = (*v1)[i][1];
-			ans[numpoints][2] = (*v1)[i][2];
+		if(!inSet(ans,&maxpoints,&((*v1)[i]))){
+			(*writeto)[numpoints][0] = (*v1)[i][0];
+			(*writeto)[numpoints][1] = (*v1)[i][1];
+			(*writeto)[numpoints][2] = (*v1)[i][2];
 			numpoints++;
 		}
 		if(!comparePoints(&((*v1)[i]),&((*v2)[i]))){
 			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
-				ans[numpoints][0] = (*v2)[i][0];
-				ans[numpoints][1] = (*v2)[i][1];
-				ans[numpoints][2] = (*v2)[i][2];
+				(*writeto)[numpoints][0] = (*v2)[i][0];
+				(*writeto)[numpoints][1] = (*v2)[i][1];
+				(*writeto)[numpoints][2] = (*v2)[i][2];
 				numpoints++;
 			}
 		}
 		if(!comparePoints(&((*v1)[i]),&((*v3)[i])) && !comparePoints(&((*v1)[i]),&((*v3)[i]))){
 			if(!inSet(&ans,&maxpoints,&((*v2)[i]))){
-				ans[numpoints][0] = (*v3)[i][0];
-				ans[numpoints][1] = (*v3)[i][1];
-				ans[numpoints][2] = (*v3)[i][2];
+				(*writeto)[numpoints][0] = (*v3)[i][0];
+				(*writeto)[numpoints][1] = (*v3)[i][1];
+				(*writeto)[numpoints][2] = (*v3)[i][2];
 				numpoints++;
 			}
 		}
 	}
-	return &ans;
+	return numpoints;
 }
 
 bool comparePoints(float ** p1, float **p2){
