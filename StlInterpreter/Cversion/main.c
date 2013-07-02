@@ -79,17 +79,17 @@ int main(int argc, char **argv){
 }
 
 void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3){
-	float*** points;
+	float** points;
 	unsigned long numpoints;
 	fputc('#',file);
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
-	//numpoints = allPoints(numtriangles,v1,v2,v3,points);
+	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
 }
 
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3, float*** writeto){
 	unsigned long numpoints = 0,i,j,maxpoints = *numtriangles + 2;
-	*writeto = (float**)malloc(sizeof(float*) * maxpoints);
+	*writeto = (float **) malloc(sizeof(float*) * (unsigned int)(maxpoints));
 	for(i = 0; i < maxpoints; ++i){
 		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
