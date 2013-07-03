@@ -68,11 +68,34 @@ int main(int argc, char **argv){
 	readsucessful?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	if(readsucessful){writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);}
 	readsucessful?printf("writing sucessful\n"):printf("write unsucessful\n");
+	if(!readsucessful && debug) {
+		perror("The following error occured");
+		printf("end of file?: %s\n",feof(readf)?"yes":"no");
+		printf("file error?: %s\n",ferror(readf)?"yes":"no");
+	}
 	if(!readsucessful && !debug){printf("run program again with a 2nd argument to enter debug mode\n");}
-	//printOutArray(&normal,numfaces,3);
-	//printOutArray(&v1,numfaces,3);
-	//printOutArray(&v2,numfaces,3);
-	//printOutArray(&v3,numfaces,3);
+	if(readsucessful && debug){
+		printf("print normals? y? \n");
+		scanf("%c",&data);
+		if(data == 'y'){
+			printOutArray(&normal,numfaces,3);
+		}
+		printf("print V1? y? \n");
+		scanf("%c",&data);
+		if(data == 'y'){
+				printOutArray(&v1,numfaces,3);
+		}
+		printf("print V2? y? \n");
+		scanf("%c",&data);
+		if(data == 'y'){
+			printOutArray(&v2,numfaces,3);
+		}
+		printf("print V3? y? \n");
+		scanf("%c",&data);
+		if(data == 'y'){
+				printOutArray(&v3,numfaces,3);
+		}
+	}
 	
 	fclose(readf);
 	fclose(writef);
