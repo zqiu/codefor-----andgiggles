@@ -55,7 +55,7 @@ int main(int argc, char **argv){
 	writef = fopen(strcat(filename,".ttl"),"r");
 	if(writef){
 		printf("file %s already exist. continue y? \n",filename);
-		scanf("%c",&data);
+		scanf("%s",&data);
 		if(data != 'y'){
 			exit(EXIT_SUCCESS);
 		}
@@ -74,24 +74,24 @@ int main(int argc, char **argv){
 		printf("file error?: %s\n",ferror(readf)?"yes":"no");
 	}
 	if(!readsucessful && !debug){printf("run program again with a 2nd argument to enter debug mode\n");}
-	if(readsucessful && debug){
+	if(debug){
 		printf("print normals? y? \n");
-		scanf("%c",&data);
+		scanf("%s",&data);
 		if(data == 'y'){
 			printOutArray(&normal,numfaces,3);
 		}
 		printf("print V1? y? \n");
-		scanf("%c",&data);
+		scanf("%s",&data);
 		if(data == 'y'){
 				printOutArray(&v1,numfaces,3);
 		}
 		printf("print V2? y? \n");
-		scanf("%c",&data);
+		scanf("%s",&data);
 		if(data == 'y'){
 			printOutArray(&v2,numfaces,3);
 		}
 		printf("print V3? y? \n");
-		scanf("%c",&data);
+		scanf("%s",&data);
 		if(data == 'y'){
 				printOutArray(&v3,numfaces,3);
 		}
