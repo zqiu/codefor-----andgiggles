@@ -219,7 +219,7 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	
 	if(!getNumTriangle(file,tempnumtriangle)) {printf("coulden't get num of triangles\n"); return false;}
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
-		*numtriangles += (unsigned long) tempnumtriangle[i] << i;
+		*numtriangles += (unsigned long) tempnumtriangle[i] << i*8;
 	}
 	printf("num of triangles: %lu \n",*numtriangles);
 	if(*numtriangles >UINT_MAX){
