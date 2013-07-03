@@ -1,3 +1,4 @@
 todo: 
 check for null pointers
 add comments
+add debugmode
