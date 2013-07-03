@@ -35,6 +35,7 @@ int main(int argc, char **argv){
 	if(argc == 3){
 		debug = true;
 	}
+	
 	readf = fopen(argv[1],"r");
 	if(!readf){
 		printf("error: file does not exist\n");
@@ -62,18 +63,26 @@ int main(int argc, char **argv){
 	}
 	fclose(writef);
 	writef = fopen(filename,"w");
-	if(debug){printf("writing file to %s\n",filename);}
+	if(debug){
+		printf("writing file to %s\n",filename);
+	}
 	
 	readsucessful = read(readf,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
 	readsucessful?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
-	if(readsucessful){writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);}
-	readsucessful?printf("writing sucessful\n"):printf("write unsucessful\n");
-	if(!readsucessful && debug) {
-		perror("The following error occured");
-		printf("end of file?: %s\n",feof(readf)?"yes":"no");
-		printf("file error?: %s\n",ferror(readf)?"yes":"no");
+	if(readsucessful){
+		printf("writing sucessful\n");
+		writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
 	}
-	if(!readsucessful && !debug){printf("run program again with a 2nd argument to enter debug mode\n");}
+	if(!readsucessful) {
+		printf("write unsucessful\n");		
+		if(debug){
+			perror("The following error occured");
+			printf("end of file?: %s\n",feof(readf)?"yes":"no");
+			printf("file error?: %s\n",ferror(readf)?"yes":"no");
+		}else{
+			printf("run program again with a 2nd argument to enter debug mode\n");
+		}
+	}
 	if(debug){
 		printf("print normals? y? \n");
 		scanf("%s",&data);
@@ -117,11 +126,15 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	float** points, *tmp, percent = 0.0;
 	char buffer[20];
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
+	
 	fputc('#',file);
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
-	if(debug){printf("there are %lu points\n",numpoints);}
+	if(debug){
+		printf("there are %lu points\n",numpoints);
+	}
+	
 	for(i = 0; i < numpoints; ++i){
 		fputs(":point",file);
 		sprintf(buffer,"%lu",i);
@@ -142,6 +155,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		}
 	}
 	printf("finished writing all the points\n");
+	
 	percent = 0.0;
 	for(i = 0; i < *numtriangles;++i){
 		for(j = 0; j < numpoints; ++j){
@@ -183,6 +197,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 			printf("%.0f%% of triangles written\n",percent);
 		}
 	}
+	
 	for(i = 0; i < numpoints; ++i){
 		free(points[i]);
 	}
@@ -195,6 +210,7 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 	for(i = 0; i < maxpoints; ++i){
 		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
+	
 	for(i = 0; i < *numtriangles; ++i){
 		if(!inSet(writeto,&maxpoints,&((*v1)[i]))){
 			(*writeto)[numpoints][0] = (*v1)[i][0];
@@ -242,15 +258,29 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	BYTE * throwaway = (BYTE *) malloc(sizeof(BYTE) * 2);
 	
 	*name = (BYTE*) malloc(sizeof(BYTE) * 81);
-	if(!getName(file,*name)) {if(debug){printf("coulden't get name of file\n");}return false;}
+	if(!getName(file,*name)) {
+		if(debug){
+			printf("coulden't get name of file\n");
+		}
+		return false;
+	}
 	(*name)[80] = '\0';
-	if(debug){printf("name: %s \n",*name);}
+	if(debug){
+		printf("name: %s \n",*name);
+	}
 	
-	if(!getNumTriangle(file,tempnumtriangle)) {if(debug){printf("coulden't get num of triangles\n");} return false;}
+	if(!getNumTriangle(file,tempnumtriangle)) {
+		if(debug){
+			printf("coulden't get num of triangles\n");
+		} 
+		return false;
+	}
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
 		*numtriangles += (unsigned long) tempnumtriangle[i] << i*8;
 	}
-	if(debug){printf("num of triangles: %lu \n",*numtriangles);}
+	if(debug){
+		printf("num of triangles: %lu \n",*numtriangles);
+	}
 	if(*numtriangles >UINT_MAX){
 		printf("note:number of triangles is greater than value of unsigned int. Program might not function correctly\n");
 	}
@@ -267,7 +297,12 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	}
 	
 	for(i = 0; i < *numtriangles; ++i){
-		if(!getNextTriangle(file,temptrianglebuffer,throwaway)){if(debug){printf("coulden't get triangle %d\n",i);} return false;}
+		if(!getNextTriangle(file,temptrianglebuffer,throwaway)){
+			if(debug){
+				printf("coulden't get triangle %d\n",i);
+			} 
+			return false;
+		}
 		for(k = 0; k < 4; ++k){
 			for(j = 0; j < 3; ++j){
 				sfloat.b[0] = temptrianglebuffer[k*12 + j*4];
