@@ -213,11 +213,11 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	BYTE * throwaway = (BYTE *) malloc(sizeof(BYTE) * 2);
 	
 	*name = (BYTE*) malloc(sizeof(BYTE) * 81);
-	if(!getName(file,*name)) return false;
+	if(!getName(file,*name)) {printf("coulden't get name of file\n");return false;}
 	(*name)[80] = '\0';
 	printf("name: %s \n",*name);
 	
-	if(!getNumTriangle(file,tempnumtriangle)) return false;
+	if(!getNumTriangle(file,tempnumtriangle)) {printf("coulden't get num of triangles\n"); return false;}
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
 		*numtriangles += (unsigned long) tempnumtriangle[i] << i;
 	}
@@ -238,7 +238,7 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	}
 	
 	for(i = 0; i < *numtriangles; ++i){
-		if(!getNextTriangle(file,temptrianglebuffer,throwaway))return false;
+		if(!getNextTriangle(file,temptrianglebuffer,throwaway)){printf("coulden't get triangle %d\n",i); return false;}
 		for(k = 0; k < 4; ++k){
 			for(j = 0; j < 3; ++j){
 				sfloat.b[0] = temptrianglebuffer[k*12 + j*4];
