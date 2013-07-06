@@ -36,7 +36,7 @@ int main(int argc, char **argv){
 		debug = true;
 	}
 	
-	readf = fopen(argv[1],"r");
+	readf = fopen(argv[1],"rb");
 	if(!readf){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
