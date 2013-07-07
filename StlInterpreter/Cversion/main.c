@@ -70,8 +70,8 @@ int main(int argc, char **argv){
 	readsucessful = read(readf,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
 	readsucessful?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	if(readsucessful){
-		printf("writing sucessful\n");
 		writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
+		printf("writing sucessful\n");
 	}
 	if(!readsucessful) {
 		printf("write unsucessful\n");		
@@ -149,7 +149,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		sprintf(buffer,"%.6f",points[i][2]);
 		fputs(buffer,file);
 		fputs("\"^^xsd:float.\n",file);
-		if(i*100/numpoints > percent + 5){
+		if(i*100/numpoints > percent + 15){
 			percent = ((i*100/numpoints)/5)*5;
 			printf("%.0f%% of points written\n",percent);
 		}
@@ -192,7 +192,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		sprintf(buffer,"%lu",p3);
 		fputs(buffer,file);
 		fputs(".\n",file);
-		if(i*100/(*numtriangles) > percent + 5){
+		if(i*100/(*numtriangles) > percent + 15){
 			percent = ((i*100/(*numtriangles))/5)*5;
 			printf("%.0f%% of triangles written\n",percent);
 		}
@@ -205,21 +205,22 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 }
 
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3, float*** writeto){
-	unsigned long numpoints = 0,i,j,maxpoints = *numtriangles + 2;
+	unsigned long numpoints = 0,i,maxpoints = *numtriangles + 2;
+	float percent = 0.0;
 	*writeto = (float **) malloc(sizeof(float*) * (unsigned int)(maxpoints));
 	for(i = 0; i < maxpoints; ++i){
 		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
 	
 	for(i = 0; i < *numtriangles; ++i){
-		if(!inSet(writeto,&maxpoints,&((*v1)[i]))){
+		if(!inSet(writeto,&numpoints,&((*v1)[i]))){
 			(*writeto)[numpoints][0] = (*v1)[i][0];
 			(*writeto)[numpoints][1] = (*v1)[i][1];
 			(*writeto)[numpoints][2] = (*v1)[i][2];
 			numpoints++;
 		}
 		if(!comparePoints(&((*v1)[i]),&((*v2)[i]))){
-			if(!inSet(writeto,&maxpoints,&((*v2)[i]))){
+			if(!inSet(writeto,&numpoints,&((*v2)[i]))){
 				(*writeto)[numpoints][0] = (*v2)[i][0];
 				(*writeto)[numpoints][1] = (*v2)[i][1];
 				(*writeto)[numpoints][2] = (*v2)[i][2];
@@ -227,14 +228,19 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 			}
 		}
 		if(!comparePoints(&((*v1)[i]),&((*v3)[i])) && !comparePoints(&((*v1)[i]),&((*v3)[i]))){
-			if(!inSet(writeto,&maxpoints,&((*v2)[i]))){
+			if(!inSet(writeto,&numpoints,&((*v2)[i]))){
 				(*writeto)[numpoints][0] = (*v3)[i][0];
 				(*writeto)[numpoints][1] = (*v3)[i][1];
 				(*writeto)[numpoints][2] = (*v3)[i][2];
 				numpoints++;
 			}
 		}
+		if(i*100/(*numtriangles) > percent + 5){
+			percent = ((i*100/(*numtriangles))/5)*5;
+			printf("%.0f%% of points read in\n",percent);
+		}
 	}
+	printf("finished reading in all the points\n");
 	return numpoints;
 }
 
