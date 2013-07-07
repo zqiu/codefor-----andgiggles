@@ -6,15 +6,16 @@
 
 typedef unsigned char BYTE;
 bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug);
-bool getName(FILE * file, BYTE * buffer);
-bool getNumTriangle(FILE * file, BYTE * buffer);
-bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway);
+bool getName(FILE * file, BYTE ** buffer);
+bool getNumTriangle(FILE * file, BYTE ** buffer);
+bool getNextTriangle(FILE * file, BYTE ** buffer, BYTE ** throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
 void writeFile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug);
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3,float*** writeto);
 bool comparePoints(float ** p1, float **p2);
 bool inSet(float *** set, unsigned long * size, float ** p);
 
+//structure that converts bytes to floats and back
 union{
 	float f;
 	BYTE b[sizeof(float)];
@@ -27,21 +28,22 @@ int main(int argc, char **argv){
 	unsigned long numfaces,i;
 	float ** normal, **v1, **v2, **v3;
 	bool debug = false, readsucessful;
-	
+	//reading in file arguments giving an error if number of file arguments does not match
 	if(argc != 2 && argc != 3){
 		printf("error: need an argument: Name of file\n");
 		exit(EXIT_FAILURE);
 	}
+	//reading in if the user wants the program in debug mode
 	if(argc == 3){
 		debug = true;
 	}
-	
+	//opening the file and throwing an error if file does not exist
 	readf = fopen(argv[1],"rb");
 	if(!readf){
 		printf("error: file does not exist\n");
 		exit(EXIT_FAILURE);
 	}
-	
+	//getting extension and name of fil so that program can check if file is an stl file
 	strncpy(cpy,argv[1],80);
 	next = strtok(cpy,"./");
 	while(next){
@@ -53,6 +55,7 @@ int main(int argc, char **argv){
 			printf("error: first argument is not a stl file\n");
 			exit(EXIT_FAILURE);
 	}
+	//opening a file with the exact same file name just with the ttl extension. If file exists already program will ask if the user would like to continue
 	writef = fopen(strcat(filename,".ttl"),"r");
 	if(writef){
 		printf("file %s already exist. continue y? \n",filename);
@@ -66,13 +69,15 @@ int main(int argc, char **argv){
 	if(debug){
 		printf("writing file to %s\n",filename);
 	}
-	
+	//program will now try to read in values from the file and store them into their associated variables
 	readsucessful = read(readf,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
 	readsucessful?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
+	//if program is sucessful in reading, will now try to write the file in ttl format
 	if(readsucessful){
 		writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
 		printf("writing sucessful\n");
 	}
+	//if not sucessful will print our debuggin statements if debugging is on
 	if(!readsucessful) {
 		printf("write unsucessful\n");		
 		if(debug){
@@ -83,6 +88,7 @@ int main(int argc, char **argv){
 			printf("run program again with a 2nd argument to enter debug mode\n");
 		}
 	}
+	//if debuggin is on will prompt user on whether they would like to print out the read data
 	if(debug){
 		printf("print normals? y? \n");
 		scanf("%s",&data);
@@ -105,7 +111,7 @@ int main(int argc, char **argv){
 				printOutArray(&v3,numfaces,3);
 		}
 	}
-	
+	//closing the file streams and freeing memory
 	fclose(readf);
 	fclose(writef);
 	for(i = 0; i < numfaces; ++i){
@@ -122,19 +128,28 @@ int main(int argc, char **argv){
 	exit(EXIT_SUCCESS);
 }
 
+/*arguments:
+	file pointer of file to be written to
+	pointer to array of BYTES of the name of the file
+	pointer to an unsigned long of the number of triangle in the file 
+	4 pointer to 2d arrays of floats representing the coordinates 
+	bool designating whether to be in debug modeor not
+  return:NULL
+*/
 void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug){
 	float** points, *tmp, percent = 0.0;
 	char buffer[20];
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
-	
+	//writes header for the ttl file
 	fputc('#',file);
 	fputs(*name,file);
 	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
+	//finds out all the points in the file and prints out num points if in debug mode
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
 	if(debug){
 		printf("there are %lu points\n",numpoints);
 	}
-	
+	//for every point writes the ttl format for it. Will also print in increments of 15% completion
 	for(i = 0; i < numpoints; ++i){
 		fputs(":point",file);
 		sprintf(buffer,"%lu",i);
@@ -155,7 +170,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		}
 	}
 	printf("finished writing all the points\n");
-	
+	//for every triangle writes the ttl format fo it. Will also print in increments of 15% completion
 	percent = 0.0;
 	for(i = 0; i < *numtriangles;++i){
 		for(j = 0; j < numpoints; ++j){
@@ -197,13 +212,18 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 			printf("%.0f%% of triangles written\n",percent);
 		}
 	}
-	
+	//freeing the data stored into the memory allocated to track all the poinsts
 	for(i = 0; i < *numtriangles + 2; ++i){
 		free(points[i]);
 	}
 	free(points);
 }
-
+/*arguments:
+	pointer to unsigned long representing number of triangle
+	3 pointers to 2d arrays of floats representing coordinates of the 3 vertexes
+	pointer of a 2d array of floats where all the points that are in the file will be written to
+  return:number of points in the file
+*/
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3, float*** writeto){
 	unsigned long numpoints = 0,i,maxpoints = *numtriangles + 2;
 	float percent = 0.0;
@@ -211,7 +231,7 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 	for(i = 0; i < maxpoints; ++i){
 		(*writeto)[i] = (float*)malloc(sizeof(float)*3);
 	}
-	
+	//goes through every triangle and writes to writeto any unique points
 	for(i = 0; i < *numtriangles; ++i){
 		if(!inSet(writeto,&numpoints,&((*v1)[i]))){
 			(*writeto)[numpoints][0] = (*v1)[i][0];
@@ -235,6 +255,7 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 				numpoints++;
 			}
 		}
+		//prints number of points read by intervals of 5 percent and will throw error if number of points is greater than the maximum number of points given the number of triangles
 		if(i*100/(*numtriangles) > percent + 5){
 			percent = ((i*100/(*numtriangles))/5)*5;
 			printf("%.0f%% of points read in\n",percent);
@@ -247,11 +268,19 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 	printf("finished reading in all the points\n");
 	return numpoints;
 }
-
+/*arguments:
+	2 pointers to arays of floats representing the coordinates of the two points to be compared to
+  return: bool represent whether the two coordinates were the same
+*/
 bool comparePoints(float ** p1, float **p2){
 	return (*p1)[0] == (*p2)[0] && (*p1)[1] == (*p2)[1] && (*p1)[2] == (*p2)[2];
 }
-
+/*arguments:
+	pointer to a 2D array of floats representing the collection of coordinates.
+	pointer to an unsigned long representing size of the set
+	pointer to a array of floating representing the coordinate in question
+  return:bool representing whether the point was in the collection of points
+*/
 bool inSet(float *** set, unsigned long * size, float ** p){
 	unsigned long i;
 	for(i = 0; i < *size; ++i){
@@ -259,16 +288,23 @@ bool inSet(float *** set, unsigned long * size, float ** p){
 	}
 	return false;
 }
-
+/*arguments:
+	file pointer of file to be read
+	pointer to array of BYTES where the name shall be stored
+	pointer to an unsigned long where the number of triangle in the file will be stored
+	4 pointer to 2d arrays of floats where coordinates will be stored
+	bool designating whether to be in debug modeor not
+  return:bool whether the operation suceeded or not
+ */
 bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3,bool debug){
 	unsigned long i;
 	int j,k;
 	BYTE * tempnumtriangle = (BYTE *) malloc(sizeof(BYTE) * 4);
 	BYTE * temptrianglebuffer = (BYTE *) malloc(sizeof(BYTE) * 48);
 	BYTE * throwaway = (BYTE *) malloc(sizeof(BYTE) * 2);
-	
+	//allocating memory for the name of the file and adding a nill terminator in the end
 	*name = (BYTE*) malloc(sizeof(BYTE) * 81);
-	if(!getName(file,*name)) {
+	if(!getName(file,name)) {
 		if(debug){
 			printf("coulden't get name of file\n");
 		}
@@ -278,8 +314,8 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	if(debug){
 		printf("name: %s \n",*name);
 	}
-	
-	if(!getNumTriangle(file,tempnumtriangle)) {
+	//getting the number of triangles in the file as a array of bytes and converting it to and unsigned long
+	if(!getNumTriangle(file,&tempnumtriangle)) {
 		if(debug){
 			printf("coulden't get num of triangles\n");
 		} 
@@ -288,13 +324,14 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 	for(i = 0, *numtriangles = 0; i < 4; ++i){
 		*numtriangles += (unsigned long) tempnumtriangle[i] << i*8;
 	}
+	//if in debug mode prints number of triangles and prints a warning if number of triangle exceedes the maximum unsigned ints
 	if(debug){
 		printf("num of triangles: %lu \n",*numtriangles);
 	}
 	if(*numtriangles >UINT_MAX){
 		printf("note:number of triangles is greater than value of unsigned int. Program might not function correctly\n");
 	}
-	
+	//allocating memory for the array of coordinates given the number of triangles
 	*normal = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
 	*v1 = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
 	*v2 = (float **) malloc(sizeof(float*) * (unsigned int)(*numtriangles));
@@ -305,9 +342,9 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 		(*v2)[i] = (float *) malloc(sizeof(float) * 3);
 		(*v3)[i] = (float *) malloc(sizeof(float) * 3);
 	}
-	
+	//for the number of triangles read in coordinates of each triangle in bytes, converts to a float using a union and stores into the appropriate field.
 	for(i = 0; i < *numtriangles; ++i){
-		if(!getNextTriangle(file,temptrianglebuffer,throwaway)){
+		if(!getNextTriangle(file,&temptrianglebuffer,&throwaway)){
 			if(debug){
 				printf("coulden't get triangle %d\n",i);
 			} 
@@ -336,29 +373,48 @@ bool read(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** norm
 			}
 		}
 	}
+	//freeing the temporary arrays used to read in the bytes from the file
 	free(tempnumtriangle);
 	free(temptrianglebuffer);
 	free(throwaway);
 	return true;
 }
-
-bool getName(FILE * file, BYTE * buffer){
-	size_t numread = fread((void*)buffer,1,80,file);
+/*arguments:
+	file pointer representing file to be read from
+	pointer to array of BTYES to write name of file
+  return:bool representing whether read was sucessful
+*/
+bool getName(FILE * file, BYTE ** buffer){
+	size_t numread = fread((void*)(*buffer),1,80,file);
 	return (numread == 80)?true:false;
 }
-
-bool getNumTriangle(FILE * file, BYTE * buffer){
-	size_t numread = fread((void*)buffer,1,4,file);
+/*arguments:
+	file pointer representing file to be read from
+	pointer to array of BYTE to store BYTE representation of number of triangles
+  return:bool representing whether read was sucessful
+*/
+bool getNumTriangle(FILE * file, BYTE ** buffer){
+	size_t numread = fread((void*)(*buffer),1,4,file);
 	return (numread == 4)?true:false;
 }
-
-bool getNextTriangle(FILE * file, BYTE * buffer, BYTE * throwaway){
-	size_t numread = fread((void*)buffer,1,48,file);
+/*arguments:
+	file pointer representing file to be read from
+	pointer to array of BYTE to store coordinates of the triangle
+	pointer to array of BYTE to store the contents of the throwaway
+  return:bool representing whether read was sucessful
+*/
+bool getNextTriangle(FILE * file, BYTE ** buffer, BYTE ** throwaway){
+	size_t numread = fread((void*)(*buffer),1,48,file);
 	if(numread != 48) return false;
-	numread = fread((void*)throwaway,1,2,file);
+	numread = fread((void*)(*throwaway),1,2,file);
 	return (numread == 2)?true:false;
 }
-
+/*arguments:
+	pointer to 2d array of floate representing the array of coordinates to print out
+	unsigned long representing number of elements in the array
+	int representing number of floats in each coordinate
+  returns:NULL
+*/
 void printOutArray(float *** array, unsigned long length, int depth){
 	unsigned long i;
 	int j;
