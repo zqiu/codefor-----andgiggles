@@ -198,7 +198,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		}
 	}
 	
-	for(i = 0; i < numpoints; ++i){
+	for(i = 0; i < *numtriangles + 2; ++i){
 		free(points[i]);
 	}
 	free(points);
