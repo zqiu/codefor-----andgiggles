@@ -227,8 +227,8 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 				numpoints++;
 			}
 		}
-		if(!comparePoints(&((*v1)[i]),&((*v3)[i])) && !comparePoints(&((*v1)[i]),&((*v3)[i]))){
-			if(!inSet(writeto,&numpoints,&((*v2)[i]))){
+		if(!comparePoints(&((*v1)[i]),&((*v3)[i])) && !comparePoints(&((*v2)[i]),&((*v3)[i]))){
+			if(!inSet(writeto,&numpoints,&((*v3)[i]))){
 				(*writeto)[numpoints][0] = (*v3)[i][0];
 				(*writeto)[numpoints][1] = (*v3)[i][1];
 				(*writeto)[numpoints][2] = (*v3)[i][2];
@@ -238,6 +238,10 @@ unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, 
 		if(i*100/(*numtriangles) > percent + 5){
 			percent = ((i*100/(*numtriangles))/5)*5;
 			printf("%.0f%% of points read in\n",percent);
+		}
+		if(numpoints > maxpoints){
+			printf("ERROR: your stl file contains triangles that are not connected\n");
+			break;
 		}
 	}
 	printf("finished reading in all the points\n");
