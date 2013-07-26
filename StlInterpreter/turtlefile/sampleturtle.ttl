@@ -1,0 +1,22 @@
+@base <http://example.com/>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.
+
+:point1 a :point;
+ :x "3.4"^^xsd:float;
+ :y "6.2"^^xsd:float;
+ :z "3.8"^^xsd:float.
+:point2 a :point;
+ :x "2.4"^^xsd:float;
+ :y "6.9"^^xsd:float;
+ :z "5.4"^^xsd:float.
+:point3 a :point;
+ :x "1.2"^^xsd:float;
+ :y "4.8"^^xsd:float;
+ :z "2.6"^^xsd:float.
+:triangle1 a :triangle;
+ :vertex1 :point1;
+ :vertex2 :point2;
+ :vertex3 :point3;
+ :x "0.2"^^xsd:float;
+ :y "0.4"^^xsd:float;
+ :z "0.8"^^xsd:float.
