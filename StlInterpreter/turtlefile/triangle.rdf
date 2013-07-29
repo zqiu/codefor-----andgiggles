@@ -1,0 +1,41 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:dmcore="http://jazz.net/ns/dm/core#"
+    xmlns:dmfolder="http://jazz.net/ns/dm/folder#"
+    xmlns:dmindex="http://jazz.net/ns/dm/index#"
+    xmlns:j.0="https://ssejtsserver:9443/dm/models/stlinterpreter#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.1="http://xmlns.com/foaf/0.1/"
+    xmlns:ttl="https://ssejtsserver:9443/dm/models/stlinterpreter" > 
+  
+  <rdf:Description rdf:nodeID="A0">
+    <rdf:first rdf:resource="https://ssejtsserver:9443/dm/models/89"/>
+    <rdf:rest rdf:resource="http://www.w3.org/1999/02/22-rdf-syntax-ns#nil"/>
+  </rdf:Description>
+  
+  <rdf:Description rdf:nodeID="A1">
+    <rdf:first rdf:resource="https://ssejtsserver:9443/dm/models/88"/>
+    <rdf:rest rdf:nodeID="A0"/>
+  </rdf:Description>
+  
+  <rdf:Description rdf:about="https://ssejtsserver:9443/dm/models/90">
+    <dmindex:quickSearch>Triangle</dmindex:quickSearch>
+    <dmfolder:folder rdf:resource="https://ssejtsserver:9443/dm/models/85"/>
+    <j.1:page rdf:resource="https://ssejtsserver:9443/dm/models/90"/>
+    <dmindex:quickSearch>triangle1</dmindex:quickSearch>
+    <dcterms:title rdf:datatype="http://www.w3.org/2001/XMLSchema#string">triangle1</dcterms:title>
+    <rdfs:label>triangle1</rdfs:label>
+    <rdf:type rdf:resource="http://jazz.net/ns/dm/core#Document"/>
+    <j.0:z_val rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.3</j.0:z_val>
+    <j.0:x_val rdf:datatype="http://www.w3.org/2001/XMLSchema#double">1.2</j.0:x_val>
+    <rdf:type rdf:resource="https://ssejtsserver:9443/dm/models/stlinterpreter#Triangle"/>
+    <j.0:y_val rdf:datatype="http://www.w3.org/2001/XMLSchema#double">2.3</j.0:y_val>
+    <j.0:Points rdf:nodeID="A2"/>
+  </rdf:Description>
+  
+  <rdf:Description rdf:nodeID="A2">
+    <rdf:first rdf:resource="https://ssejtsserver:9443/dm/models/86"/>
+    <rdf:rest rdf:nodeID="A1"/>
+  </rdf:Description>
+</rdf:RDF>

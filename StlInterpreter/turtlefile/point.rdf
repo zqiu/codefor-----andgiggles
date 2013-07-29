@@ -1,0 +1,25 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:dmcore="http://jazz.net/ns/dm/core#"
+    xmlns:dmfolder="http://jazz.net/ns/dm/folder#"
+    xmlns:dmindex="http://jazz.net/ns/dm/index#"
+    xmlns:j.0="https://ssejtsserver:9443/dm/models/stlinterpreter#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.1="http://xmlns.com/foaf/0.1/"
+    xmlns:ttl="https://ssejtsserver:9443/dm/models/stlinterpreter" > 
+  
+  <rdf:Description rdf:about="https://ssejtsserver:9443/dm/models/86">
+    <j.0:z_val rdf:datatype="http://www.w3.org/2001/XMLSchema#double">5.7</j.0:z_val>
+    <j.0:y_val rdf:datatype="http://www.w3.org/2001/XMLSchema#double">6.7</j.0:y_val>
+    <j.1:page rdf:resource="https://ssejtsserver:9443/dm/models/86"/>
+    <dmindex:quickSearch>Point</dmindex:quickSearch>
+    <dcterms:title rdf:datatype="http://www.w3.org/2001/XMLSchema#string">point1</dcterms:title>
+    <rdf:type rdf:resource="https://ssejtsserver:9443/dm/models/stlinterpreter#Point"/>
+    <rdf:type rdf:resource="http://jazz.net/ns/dm/core#Document"/>
+    <dmindex:quickSearch>point1</dmindex:quickSearch>
+    <rdfs:label>point1</rdfs:label>
+    <j.0:x_val rdf:datatype="http://www.w3.org/2001/XMLSchema#double">3.4</j.0:x_val>
+    <dmfolder:folder rdf:resource="https://ssejtsserver:9443/dm/models/85"/>
+  </rdf:Description>
+</rdf:RDF>

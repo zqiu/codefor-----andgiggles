@@ -1,0 +1,32 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dmfolder:  <http://jazz.net/ns/dm/folder#> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix dmcore:  <http://jazz.net/ns/dm/core#> .
+@prefix dmindex:  <http://jazz.net/ns/dm/index#> .
+@prefix ttl:     <https://ssejtsserver:9443/dm/models/stlinterpreter> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+
+<https://ssejtsserver:9443/dm/models/91>
+      a       dmcore:Document , <https://ssejtsserver:9443/dm/models/stlinterpreter#StLfile> ;
+      rdfs:label "samplefile" ;
+      dmfolder:folder <https://ssejtsserver:9443/dm/models/85> ;
+      dmindex:quickSearch "StLfile" , "samplefile" , "hihi" ;
+      dcterms:title "samplefile"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <http://xmlns.com/foaf/0.1/page>
+              <https://ssejtsserver:9443/dm/models/91> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#max_x>
+              "1.3"^^<http://www.w3.org/2001/XMLSchema#double> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#max_y>
+              "4.5"^^<http://www.w3.org/2001/XMLSchema#double> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#max_z>
+              "2.3"^^<http://www.w3.org/2001/XMLSchema#double> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#min_x>
+              "2.4"^^<http://www.w3.org/2001/XMLSchema#double> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#min_y>
+              "2.34"^^<http://www.w3.org/2001/XMLSchema#double> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#min_z>
+              "32.45"^^<http://www.w3.org/2001/XMLSchema#double> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#name>
+              "hihi"^^<http://www.w3.org/2001/XMLSchema#string> ;
+      <https://ssejtsserver:9443/dm/models/stlinterpreter#triangles>
+              (<https://ssejtsserver:9443/dm/models/90>) .

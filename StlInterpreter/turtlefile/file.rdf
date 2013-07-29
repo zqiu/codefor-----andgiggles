@@ -1,0 +1,19 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dcterms="http://purl.org/dc/terms/"
+    xmlns:dmcore="http://jazz.net/ns/dm/core#"
+    xmlns:dmfolder="http://jazz.net/ns/dm/folder#"
+    xmlns:dmindex="http://jazz.net/ns/dm/index#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.0="http://xmlns.com/foaf/0.1/" > 
+  
+  <rdf:Description rdf:about="https://ssejtsserver:9443/dm/models/85">
+    <j.0:page rdf:resource="https://ssejtsserver:9443/dm/models/85"/>
+    <rdfs:label>testspace</rdfs:label>
+    <dmindex:quickSearch>Folder</dmindex:quickSearch>
+    <dmindex:quickSearch>testspace</dmindex:quickSearch>
+    <rdf:type rdf:resource="http://jazz.net/ns/dm/folder#Folder"/>
+    <rdf:type rdf:resource="http://jazz.net/ns/dm/core#Document"/>
+    <dcterms:title rdf:datatype="http://www.w3.org/2001/XMLSchema#string">testspace</dcterms:title>
+  </rdf:Description>
+</rdf:RDF>

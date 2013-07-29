@@ -1,20 +1,22 @@
 @prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix dmfolder:  <http://jazz.net/ns/dm/folder#> .
 @prefix dcterms:  <http://purl.org/dc/terms/> .
 @prefix dmcore:  <http://jazz.net/ns/dm/core#> .
 @prefix dmindex:  <http://jazz.net/ns/dm/index#> .
 @prefix ttl:     <https://ssejtsserver:9443/dm/models/stlinterpreter> .
 @prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
 
-<https://ssejtsserver:9443/dm/models/80>
+<https://ssejtsserver:9443/dm/models/86>
       a       dmcore:Document , <https://ssejtsserver:9443/dm/models/stlinterpreter#Point> ;
       rdfs:label "point1" ;
+      dmfolder:folder <https://ssejtsserver:9443/dm/models/85> ;
       dmindex:quickSearch "Point" , "point1" ;
       dcterms:title "point1"^^<http://www.w3.org/2001/XMLSchema#string> ;
       <http://xmlns.com/foaf/0.1/page>
-              <https://ssejtsserver:9443/dm/models/80> ;
+              <https://ssejtsserver:9443/dm/models/86> ;
       <https://ssejtsserver:9443/dm/models/stlinterpreter#x_val>
-              "4.3"^^<http://www.w3.org/2001/XMLSchema#double> ;
+              "3.4"^^<http://www.w3.org/2001/XMLSchema#double> ;
       <https://ssejtsserver:9443/dm/models/stlinterpreter#y_val>
-              "3.5"^^<http://www.w3.org/2001/XMLSchema#double> ;
+              "6.7"^^<http://www.w3.org/2001/XMLSchema#double> ;
       <https://ssejtsserver:9443/dm/models/stlinterpreter#z_val>
-              "6.3"^^<http://www.w3.org/2001/XMLSchema#double> .
+              "5.7"^^<http://www.w3.org/2001/XMLSchema#double> .
