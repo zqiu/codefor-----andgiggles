@@ -1,0 +1,7 @@
+<https://ssejtsserver:9443/dm/models/85> <http://purl.org/dc/terms/title> "testspace"^^<http://www.w3.org/2001/XMLSchema#string> .
+<https://ssejtsserver:9443/dm/models/85> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://jazz.net/ns/dm/core#Document> .
+<https://ssejtsserver:9443/dm/models/85> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://jazz.net/ns/dm/folder#Folder> .
+<https://ssejtsserver:9443/dm/models/85> <http://jazz.net/ns/dm/index#quickSearch> "testspace" .
+<https://ssejtsserver:9443/dm/models/85> <http://jazz.net/ns/dm/index#quickSearch> "Folder" .
+<https://ssejtsserver:9443/dm/models/85> <http://www.w3.org/2000/01/rdf-schema#label> "testspace" .
+<https://ssejtsserver:9443/dm/models/85> <http://xmlns.com/foaf/0.1/page> <https://ssejtsserver:9443/dm/models/85> .
