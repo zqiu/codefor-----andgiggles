@@ -10,10 +10,14 @@ bool getName(FILE * file, BYTE ** buffer);
 bool getNumTriangle(FILE * file, BYTE ** buffer);
 bool getNextTriangle(FILE * file, BYTE ** buffer, BYTE ** throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
-void writeFile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug);
+void writeFile(FILE * file,char ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug);
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3,float*** writeto);
 bool comparePoints(float ** p1, float **p2);
 bool inSet(float *** set, unsigned long * size, float ** p);
+void writeHeading(FILE* file,unsigned long id, char * name,char * type);
+void writeTriangle(FILE* file, char * name, unsigned long id, unsigned long folderid, float ** point, unsigned long p1, unsigned long p2, unsigned long p3);
+void writePoint(FILE* file,char * name,unsigned long id, unsigned long folderid, float ** point);
+void printXYZ(FILE * file, float ** point, unsigned long id);
 
 //structure that converts bytes to floats and back
 union{
@@ -74,8 +78,8 @@ int main(int argc, char **argv){
 	readsucessful?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	//if program is sucessful in reading, will now try to write the file in ttl format
 	if(readsucessful){
-		writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
-		printf("writing sucessful\n");
+		//writeFile(writef,&filename,&numfaces,&normal,&v1,&v2,&v3,debug);
+		printf("writing sucessful of file %s\n",name);
 	}
 	//if not sucessful will print our debuggin statements if debugging is on
 	if(!readsucessful) {
@@ -136,7 +140,7 @@ int main(int argc, char **argv){
 	bool designating whether to be in debug modeor not
   return:NULL
 */
-void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug){
+void writeFile(FILE * file, char ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug){
 	float** points, *tmp, percent = 0.0;
 	char buffer[20];
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
@@ -148,14 +152,19 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	if(debug){
 		printf("there are %lu points\n",numpoints);
 	}
-	system("mkdir files");
-	system("cd files");
-	temp = fopen("folder.n3","w");
-	writeheading(temp,10000,name,"<http://jazz.net/ns/dm/folder#Folder>");
+	sprintf(buffer,"mkdir %s",*name);
+	printf(buffer);
+	printf("\n");
+	//system(buffer);
+	sprintf(buffer,"%s/folder.n3",*name);
+	printf(buffer);
+	printf("\n");
+	/*temp = fopen(buffer,"w");
+	writeHeading(temp,10000,*name,"<http://jazz.net/ns/dm/folder#Folder>");
 	fclose(temp);
 	//for every point writes the ttl format for it. Will also print in increments of 15% completion
 	for(i = 0; i < numpoints; ++i){
-		sprintf(buffer,"%s%lu","point",i);
+		sprintf(buffer,"%s/point%lu",*name,i);
 		temp = fopen(buffer,"w");
 		writePoint(temp,buffer,i+10001,10000,&(points[i]));
 		if(i*100/numpoints > percent + 15){
@@ -168,7 +177,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	//for every triangle writes the ttl format for it. Will also print in increments of 15% completion
 	percent = 0.0;
 	for(i = 0; i < *numtriangles;++i){
-		sprintf(buffer,"%s%lu","triangle",i);
+		sprintf(buffer,"%s/triangle%lu",*name,i);
 		temp = fopen(buffer,"w");
 		for(j = 0; j < numpoints; ++j){
 			tmp = points[j];
@@ -182,7 +191,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 				p3 = j;
 			}
 		}
-		writetriangle(temp,buffer,i+10001+numpoints,&((*normal)[i]),p1,p2,p3);
+		writeTriangle(temp,buffer,i+10001+numpoints,10000,&((*normal)[i]),p1,p2,p3);
 		if(i*100/(*numtriangles) > percent + 15){
 			percent = ((i*100/(*numtriangles))/5)*5;
 			printf("%.0f%% of triangles written\n",percent);
@@ -194,8 +203,9 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 		free(points[i]);
 	}
 	free(points);
+	*/
 }
-void writeheading(FILE* file,unsigned long id, char * name,char * type){
+void writeHeading(FILE* file,unsigned long id, char * name,char * type){
 	char idtitle[50];
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",id,"> ");
 	
@@ -222,10 +232,10 @@ void writeheading(FILE* file,unsigned long id, char * name,char * type){
 	fputs(idtitle,file);
 	fputs(" .\n",file);
 }
-void writetriangle(FILE* file, char * name, unsigned long id, unsigned long folderid, float ** point, unsigned long p1, unsigned long p2, unsigned long p3){
+void writeTriangle(FILE* file, char * name, unsigned long id, unsigned long folderid, float ** point, unsigned long p1, unsigned long p2, unsigned long p3){
 	char idtitle[50],temp[10];
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",id,"> ");
-	writeheading(file,id,name,"<https://ssejtsserver:9443/dm/models/stlinterpreter#Triangle>");
+	writeHeading(file,id,name,"<https://ssejtsserver:9443/dm/models/stlinterpreter#Triangle>");
 	
 	printXYZ(file,point,id);
 	
@@ -258,10 +268,10 @@ void writetriangle(FILE* file, char * name, unsigned long id, unsigned long fold
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",folderid,"> ");
 	fputs(idtitle,file);
 }
-void writepoint(FILE* file,char * name,unsigned long id, unsigned long folderid, float ** point){
+void writePoint(FILE* file,char * name,unsigned long id, unsigned long folderid, float ** point){
 	char idtitle[50];
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",id,"> ");
-	writeheading(file,id,name,"<https://ssejtsserver:9443/dm/models/stlinterpreter#Point>");
+	writeHeading(file,id,name,"<https://ssejtsserver:9443/dm/models/stlinterpreter#Point>");
 	
 	printXYZ(file,point,id);
 	
