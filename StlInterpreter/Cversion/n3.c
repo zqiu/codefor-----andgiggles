@@ -56,7 +56,7 @@ int main(int argc, char **argv){
 			exit(EXIT_FAILURE);
 	}
 	//opening a file with the exact same file name just with the ttl extension. If file exists already program will ask if the user would like to continue
-	writef = fopen(strcat(filename,".ttl"),"r");
+	writef = fopen(strcat(filename,".n3"),"r");
 	if(writef){
 		printf("file %s already exist. continue y? \n",filename);
 		scanf("%s",&data);
@@ -140,39 +140,36 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	float** points, *tmp, percent = 0.0;
 	char buffer[20];
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
+	FILE * temp;
 	//writes header for the ttl file
-	fputc('#',file);
-	fputs(*name,file);
-	fputs("\n@base <http://example.com/>.\n@prefix xsd: <http://www.w3.org/2001/XMLSchema/>.\n",file);
+	fputs("thank you for using this program. This was written by Ze Qin Qiu. You can contact him at zqiu1994@gmail.com",file);
 	//finds out all the points in the file and prints out num points if in debug mode
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
 	if(debug){
 		printf("there are %lu points\n",numpoints);
 	}
+	system("mkdir files");
+	system("cd files");
+	temp = fopen("folder.n3","w");
+	writeheading(temp,10000,name,"<http://jazz.net/ns/dm/folder#Folder>");
+	fclose(temp);
 	//for every point writes the ttl format for it. Will also print in increments of 15% completion
 	for(i = 0; i < numpoints; ++i){
-		fputs(":point",file);
-		sprintf(buffer,"%lu",i);
-		fputs(buffer,file);
-		fputs(" a :point;\n :x \"",file);
-		sprintf(buffer,"%.6f",points[i][0]);
-		fputs(buffer,file);
-		fputs("\"^^xsd:float;\n :y \"",file);
-		sprintf(buffer,"%.6f",points[i][1]);
-		fputs(buffer,file);
-		fputs("\"^^xsd:float;\n :z \"",file);
-		sprintf(buffer,"%.6f",points[i][2]);
-		fputs(buffer,file);
-		fputs("\"^^xsd:float.\n",file);
+		sprintf(buffer,"%s%lu","point",i);
+		temp = fopen(buffer,"w");
+		writePoint(temp,buffer,i+10001,10000,&(points[i]));
 		if(i*100/numpoints > percent + 15){
 			percent = ((i*100/numpoints)/5)*5;
 			printf("%.0f%% of points written\n",percent);
 		}
+		fclose(temp);
 	}
 	printf("finished writing all the points\n");
 	//for every triangle writes the ttl format for it. Will also print in increments of 15% completion
 	percent = 0.0;
 	for(i = 0; i < *numtriangles;++i){
+		sprintf(buffer,"%s%lu","triangle",i);
+		temp = fopen(buffer,"w");
 		for(j = 0; j < numpoints; ++j){
 			tmp = points[j];
 			if(comparePoints(&tmp,&((*v1)[i]))){
@@ -185,32 +182,12 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 				p3 = j;
 			}
 		}
-		fputs(":triangle",file);
-		sprintf(buffer,"%lu",i);
-		fputs(buffer,file);
-		fputs(" a :triangle;\n :x \"",file);
-		sprintf(buffer,"%.6f",(*normal)[i][0]);
-		fputs(buffer,file);
-		fputs("\"^^xsd:float;\n :y \"",file);
-		sprintf(buffer,"%.6f",(*normal)[i][1]);
-		fputs(buffer,file);
-		fputs("\"^^xsd:float;\n :z \"",file);
-		sprintf(buffer,"%.6f",(*normal)[i][2]);
-		fputs(buffer,file);
-		fputs("\"^^xsd:float;\n :vertex1 :point",file);
-		sprintf(buffer,"%lu",p1);
-		fputs(buffer,file);
-		fputs(";\n :vertex2 :point",file);
-		sprintf(buffer,"%lu",p2);
-		fputs(buffer,file);
-		fputs(";\n :vertex3 :point",file);
-		sprintf(buffer,"%lu",p3);
-		fputs(buffer,file);
-		fputs(".\n",file);
+		writetriangle(temp,buffer,i+10001+numpoints,&((*normal)[i]),p1,p2,p3);
 		if(i*100/(*numtriangles) > percent + 15){
 			percent = ((i*100/(*numtriangles))/5)*5;
 			printf("%.0f%% of triangles written\n",percent);
 		}
+		fclose(temp);
 	}
 	//freeing the data stored into the memory allocated to track all the poinsts
 	for(i = 0; i < *numtriangles + 2; ++i){
