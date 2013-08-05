@@ -146,7 +146,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
 	FILE * temp;
 	//writes header for the ttl file
-	fputs("thank you for using this program.\n This was written by Ze Qin Qiu.\n You can contact him at zqiu1994@gmail.com\n the file name is:",file);
+	fputs("Thank you for using this program.\nThis was written by Ze Qin Qiu.\nYou can contact him at zqiu1994@gmail.com\nthe file name is:",file);
 	fputs(*name,file);
 	//finds out all the points in the file and prints out num points if in debug mode
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
@@ -276,7 +276,7 @@ void writePoint(FILE* file,char * name,unsigned long id, unsigned long folderid,
 } 
 
 void printXYZ(FILE * file, float ** point, unsigned long id){
-	char idtitle[50],temp[10];
+	char idtitle[50],temp[20];
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",id,"> ");
 
 	fputs(idtitle,file);
@@ -284,7 +284,7 @@ void printXYZ(FILE * file, float ** point, unsigned long id){
 	sprintf(temp,"%f",(*point)[0]);
 	fputs(temp,file);
 	fputs("\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",file);
-	
+		
 	fputs(idtitle,file);
 	fputs("<https://ssejtsserver:9443/dm/models/stlinterpreter#y_val> \"",file);
 	sprintf(temp,"%f",(*point)[1]);
