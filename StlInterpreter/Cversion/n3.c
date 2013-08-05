@@ -185,7 +185,7 @@ void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float***
 				p3 = j;
 			}
 		}
-		writeTriangle(temp,buffer,i+10001+numpoints,10000,&((*normal)[i]),p1,p2,p3);
+		writeTriangle(temp,buffer,i+10001+numpoints,10000,&((*normal)[i]),p1+10001,p2+10001,p3+10001);
 		if(i*100/(*numtriangles) > percent + 15){
 			percent = ((i*100/(*numtriangles))/5)*5;
 			printf("%.0f%% of triangles written\n",percent);
@@ -214,11 +214,6 @@ void writeHeading(FILE* file,unsigned long id, char * name,char * type){
 	fputs("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ",file);
 	fputs(type,file);
 	fputs(" .\n",file);
-	
-	fputs(idtitle,file);
-	fputs("<http://www.w3.org/2000/01/rdf-schema#label> \"",file);
-	fputs(name,file);
-	fputs("\" .\n",file);
 	
 	fputs(idtitle,file);
 	fputs("<http://xmlns.com/foaf/0.1/page> ",file);
@@ -254,12 +249,14 @@ void writeTriangle(FILE* file, char * name, unsigned long id, unsigned long fold
 	fputs(idtitle,file);
 	fputs(" .\n",file);
 	
-	fputs("_:p3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> _:<http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .\n",file);
+	fputs("_:p3 <http://www.w3.org/1999/02/22-rdf-syntax-ns#rest> <http://www.w3.org/1999/02/22-rdf-syntax-ns#nil> .\n",file);
 	
+	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",id,"> ");
 	fputs(idtitle,file);
 	fputs("<http://jazz.net/ns/dm/folder#folder> ",file);
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",folderid,"> ");
 	fputs(idtitle,file);
+	fputs(" .\n",file);
 }
 void writePoint(FILE* file,char * name,unsigned long id, unsigned long folderid, float ** point){
 	char idtitle[50];
