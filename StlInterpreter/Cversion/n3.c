@@ -10,7 +10,7 @@ bool getName(FILE * file, BYTE ** buffer);
 bool getNumTriangle(FILE * file, BYTE ** buffer);
 bool getNextTriangle(FILE * file, BYTE ** buffer, BYTE ** throwaway);
 void printOutArray(float *** array, unsigned long length, int depth);
-void writeFile(FILE * file,char ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug);
+void writeFile(FILE * file,BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug);
 unsigned long allPoints(unsigned long * numtriangles, float*** v1, float*** v2, float*** v3,float*** writeto);
 bool comparePoints(float ** p1, float **p2);
 bool inSet(float *** set, unsigned long * size, float ** p);
@@ -78,7 +78,7 @@ int main(int argc, char **argv){
 	readsucessful?printf("read sucessfully\n"):printf("file to be read from is improperly formatted or cannot be read\n");
 	//if program is sucessful in reading, will now try to write the file in ttl format
 	if(readsucessful){
-		//writeFile(writef,&filename,&numfaces,&normal,&v1,&v2,&v3,debug);
+		writeFile(writef,&name,&numfaces,&normal,&v1,&v2,&v3,debug);
 		printf("writing sucessful of file %s\n",name);
 	}
 	//if not sucessful will print our debuggin statements if debugging is on
@@ -140,31 +140,25 @@ int main(int argc, char **argv){
 	bool designating whether to be in debug modeor not
   return:NULL
 */
-void writeFile(FILE * file, char ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug){
+void writeFile(FILE * file, BYTE ** name, unsigned long * numtriangles, float*** normal, float*** v1, float*** v2, float*** v3, bool debug){
 	float** points, *tmp, percent = 0.0;
 	char buffer[20];
 	unsigned long numpoints,i,j,p1 = ULONG_MAX,p2 = ULONG_MAX,p3 = ULONG_MAX;
 	FILE * temp;
 	//writes header for the ttl file
-	fputs("thank you for using this program. This was written by Ze Qin Qiu. You can contact him at zqiu1994@gmail.com",file);
+	fputs("thank you for using this program.\n This was written by Ze Qin Qiu.\n You can contact him at zqiu1994@gmail.com\n the file name is:",file);
+	fputs(*name,file);
 	//finds out all the points in the file and prints out num points if in debug mode
 	numpoints = allPoints(numtriangles,v1,v2,v3,&points);
 	if(debug){
 		printf("there are %lu points\n",numpoints);
 	}
-	sprintf(buffer,"mkdir %s",*name);
-	printf(buffer);
-	printf("\n");
-	//system(buffer);
-	sprintf(buffer,"%s/folder.n3",*name);
-	printf(buffer);
-	printf("\n");
-	/*temp = fopen(buffer,"w");
-	writeHeading(temp,10000,*name,"<http://jazz.net/ns/dm/folder#Folder>");
+	temp = fopen("folder.n3","w");
+	writeHeading(temp,10000,"Folder","<http://jazz.net/ns/dm/folder#Folder>");
 	fclose(temp);
 	//for every point writes the ttl format for it. Will also print in increments of 15% completion
 	for(i = 0; i < numpoints; ++i){
-		sprintf(buffer,"%s/point%lu",*name,i);
+		sprintf(buffer,"point%lu.n3",i);
 		temp = fopen(buffer,"w");
 		writePoint(temp,buffer,i+10001,10000,&(points[i]));
 		if(i*100/numpoints > percent + 15){
@@ -177,7 +171,7 @@ void writeFile(FILE * file, char ** name, unsigned long * numtriangles, float***
 	//for every triangle writes the ttl format for it. Will also print in increments of 15% completion
 	percent = 0.0;
 	for(i = 0; i < *numtriangles;++i){
-		sprintf(buffer,"%s/triangle%lu",*name,i);
+		sprintf(buffer,"triangle%lu.n3",i);
 		temp = fopen(buffer,"w");
 		for(j = 0; j < numpoints; ++j){
 			tmp = points[j];
@@ -203,7 +197,6 @@ void writeFile(FILE * file, char ** name, unsigned long * numtriangles, float***
 		free(points[i]);
 	}
 	free(points);
-	*/
 }
 void writeHeading(FILE* file,unsigned long id, char * name,char * type){
 	char idtitle[50];
@@ -279,6 +272,7 @@ void writePoint(FILE* file,char * name,unsigned long id, unsigned long folderid,
 	fputs("<http://jazz.net/ns/dm/folder#folder> ",file);
 	sprintf(idtitle,"%s%lu%s","<https://ssejtsserver:9443/dm/models/",folderid,"> ");
 	fputs(idtitle,file);
+	fputs(" .\n",file);
 } 
 
 void printXYZ(FILE * file, float ** point, unsigned long id){
@@ -287,17 +281,20 @@ void printXYZ(FILE * file, float ** point, unsigned long id){
 
 	fputs(idtitle,file);
 	fputs("<https://ssejtsserver:9443/dm/models/stlinterpreter#x_val> \"",file);
-	sprintf(temp,"%lu",(*point)[0]);
+	sprintf(temp,"%f",(*point)[0]);
+	fputs(temp,file);
 	fputs("\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",file);
 	
 	fputs(idtitle,file);
 	fputs("<https://ssejtsserver:9443/dm/models/stlinterpreter#y_val> \"",file);
-	sprintf(temp,"%lu",(*point)[1]);
+	sprintf(temp,"%f",(*point)[1]);
+	fputs(temp,file);
 	fputs("\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",file);
 	
 	fputs(idtitle,file);
 	fputs("<https://ssejtsserver:9443/dm/models/stlinterpreter#z_val> \"",file);
-	sprintf(temp,"%lu",(*point)[2]);
+	sprintf(temp,"%f",(*point)[2]);
+	fputs(temp,file);
 	fputs("\"^^<http://www.w3.org/2001/XMLSchema#double> .\n",file);
 }
 /*arguments:

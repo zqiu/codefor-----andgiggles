@@ -2,3 +2,4 @@ todo:
 check for null pointers
 include function to write stlfile.n3
 make the idtitle passed by reference?
+make files in new directory
