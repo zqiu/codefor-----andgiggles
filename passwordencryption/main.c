@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <limits.h>
 
 int main(int argc, char **argv){
 	bool encrypt;
@@ -48,4 +49,8 @@ int main(int argc, char **argv){
 		printf("thank you for using this encryption software\n");
 		exit(EXIT_SUCCESS);
 	}
+}
+
+bool readFile(FILE * readf, char * data){
+	
 }
