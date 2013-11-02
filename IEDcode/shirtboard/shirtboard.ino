@@ -20,8 +20,8 @@ RFM12B radio;
 byte sendSize=0;
 bool requestACK=false;
 char payload[30],scratch[10];
-int temp,res,heart;
 String tempvar;
+int temp,res,heart;
 
 //set the ports for input and output
 void setup(){
@@ -94,9 +94,8 @@ void printinfo(int temperature, int resprate, int heartrate){
   Serial.print(heartrate);
 }
 
-void copy(char * to, char * from, int beg, int num){
-  int i;
-  for(i = 0; i < num; ++i){
+void copy(char * to, char * from, byte beg, byte num){
+  for(byte i = 0; i < num; ++i){
     to[i+beg] = from[i];
   }
 }
