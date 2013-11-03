@@ -20,7 +20,6 @@ RFM12B radio;
 byte sendSize=0;
 bool requestACK=false;
 char payload[30],scratch[10];
-String tempvar;
 int temp,res,heart;
 
 //set the ports for input and output
@@ -50,14 +49,11 @@ void loop(){
   printinfo(temp,res,heart);
   Serial.println();
   
-  tempvar = String(temp);
-  tempvar.toCharArray(scratch,10);
+  itoa(temp,scratch,10);
   copy(payload,scratch,0,10);
-  tempvar = String(res);
-  tempvar.toCharArray(scratch,10);
+  itoa(res,scratch,10);
   copy(payload,scratch,10,10);
-  tempvar = String(heart);
-  tempvar.toCharArray(scratch,10);  
+  itoa(heart,scratch,10);
   copy(payload,scratch,20,10);
   
   requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
