@@ -1,0 +1,22 @@
+researched about the arduino
+downloaded the IDE
+
+made the structure for the shirt and master code
+
+imported the RFM12B library
+	
+working on the shirt board
+has communication and pin board set up now
+
+added code to read in sensor value
+code stores sensor value into payload
+
+wrote structure to send payload and request acknoweledge everyonce in a while
+finished shirt board code. I think
+
+Working on the main board
+main board now asks user for input on age,sex and heart rate
+main board now recieves in sensor values
+main board now checks if sensor values are in range
+
+shirtboard now samples vital signs before sending them
