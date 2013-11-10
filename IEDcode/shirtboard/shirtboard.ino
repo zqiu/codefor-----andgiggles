@@ -9,15 +9,16 @@
 #define GATEWAYID     1  //the node ID we're sending to
 #define ACK_TIME     50  // # of ms to wait for an ack
 #define SERIAL_BAUD  115200
-#define INTERPACKETDELAY  100 //#of ms to wait between sending packets
-#define NUMBEFOREACK    10
+#define READDELAY  10 //#of ms to wait between sending packets
+#define NUMBERFOREACK    10
+#define NUMBERREADFORSEND 10
 
 #define TEMPPORT       0
 #define RESPORT        1
 #define HEARTRATEPORT  2
 
 RFM12B radio;
-byte sendSize=0;
+byte sendSize=0,read = 0;
 bool requestACK=false;
 char payload[30],scratch[10];
 int temp,res,heart;
@@ -56,20 +57,23 @@ void loop(){
   itoa(heart,scratch,10);
   copy(payload,scratch,20,10);
   
-  requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
-  radio.Wakeup();
-  radio.Send(GATEWAYID, payload, sendSize+1, requestACK);
-  if (requestACK){
-    Serial.print(" - waiting for ACK...");
-    if (waitForAck()){
-       Serial.print("ok!");
-    }else {
-       Serial.print("nothing...");
+  if(!read){
+    requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
+    radio.Wakeup();
+    radio.Send(GATEWAYID, payload, sendSize+1, requestACK);
+    if (requestACK){
+      Serial.print(" - waiting for ACK...");
+      if (waitForAck()){
+         Serial.print("ok!");
+      }else {
+         Serial.print("nothing...");
+      }
     }
+    radio.Sleep();
+    sendSize = (sendSize + 1) % NUMBERFOREACK;  //add one to send size and reset to zero if overflow
   }
-  radio.Sleep();
-  sendSize = (sendSize + 1) % NUMBEFOREACK;  //add one to send size and reset to zero if overflow
-  delay(INTERPACKETDELAY);
+  read = (read + 1) % NUMBERREADFORSEND;
+  delay(READDELAY);
 }
 
 // wait a few milliseconds for proper ACK, return true if received
