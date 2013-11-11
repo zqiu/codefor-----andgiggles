@@ -66,6 +66,7 @@ void loop(){
       if(temp > 40 || temp < 35){
         Serial.println("temp out of range");      
       }
+      //TODO:print out numbers to screen
       if (radio.ACKRequested()){
         radio.SendACK();
         Serial.print(" - ACK sent");
@@ -98,9 +99,52 @@ void waitforinput(){
   }
 }
 
-
 void printheart(){
-  
+  colorblock(17,1,2,4);
+  colorblock(27,1,2,4);
+  colorblock(21,3,2,2);
+  colorblock(25,3,2,2);
+  colorblock(23,5,2,2);
+  colorblock(15,3,10,2);
+  colorblock(31,3,10,2);
+  colorblock(17,13,2,2);
+  colorblock(19,15,2,2);
+  colorblock(21,17,2,2);
+  colorblock(29,13,2,2);
+  colorblock(27,15,2,2);
+  colorblock(25,17,2,2);
+  colorblock(22,19,2,4);
+}
+
+void printtemp(){
+  colorblock(16,26,3,16);
+  colorblock(29,23,17,2);
+}
+
+void printresp(){
+  byte i;
+  for(i = 0; i < 2; ++i){
+    colorblock(i*12 + 13,50,2,8);
+    colorblock(i*12 + 13,52,18,2);
+    colorblock(i*12 + 15,59,2,6);
+    colorblock(i*12 + 20,52,7,2);
+    colorblock(i*12 + 20,61,10,2);
+  }
+}
+
+void printcal(){
+  colorblock(8,74,2,9);
+  colorblock(8,76,17,2);
+  colorblock(8,93,2,9);
+  colorblock(23,74,2,2);
+  colorblock(21,76,2,2);
+  colorblock(25,76,2,2);
+  colorblock(20,78,2,2);
+  colorblock(26,78,2,2);
+  colorblock(19,80,15,2);  
+  colorblock(27,80,15,2);
+  colorblock(31,74,19,2);
+  colorblock(31,93,2,9);
 }
 
 void make_number(byte x, byte y, byte num){
