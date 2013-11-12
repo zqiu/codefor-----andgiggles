@@ -1,11 +1,22 @@
 
 /*code for the main board*/
 #include <RFM12B.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SharpMem.h>
 
 #define NODEID           1  //network ID used for this unit
 #define NETWORKID       99  //the network ID we are on
 #define SERIAL_BAUD 115200
 #define DELAYONREAD     10  //milliseconds to wait before reading
+
+#define SCK 7
+#define MOSI 8
+#define SS 9
+
+#define POWER 4
+#define GROUND 6
+
+Adafruit_SharpMem display(SCK, MOSI, SS);
 
 // Need an instance of the Radio Module
 RFM12B radio;
@@ -15,7 +26,11 @@ bool male = false;
 byte age,weight,restingrate,temporary;
 
 void setup(){
-  Serial.begin(SERIAL_BAUD);
+  pinMode(POWER,OUTPUT);
+  pinMode(GROUND,OUTPUT);
+  digitalWrite(POWER,HIGH);
+  digitalWrite(GROUND,LOW);
+/*  Serial.begin(SERIAL_BAUD);
   while(!male){
     Serial.println("are you a male?y/n");
     waitforinput();
@@ -38,15 +53,19 @@ void setup(){
   temporary = (byte)(206.9 - (0.67 * age));
   radio.Initialize(NODEID, RF12_433MHZ, NETWORKID);
   Serial.println("Listening...");
-    
+*/    
   printheart();
   printtemp();
   printresp();
   printcal();
+  
+  display.refresh();
+  delay(500);
+  
 }
 
 void loop(){
-  if (radio.ReceiveComplete()){
+  /*if (radio.ReceiveComplete()){
     if (radio.CRCPass()){
       Serial.print('[');Serial.print(radio.GetSender());Serial.print("] ");
       copy(scratch,(char*)radio.Data,0,10);
@@ -76,6 +95,7 @@ void loop(){
       Serial.print("BAD-CRC");
     Serial.println();
   }
+  */
 }
 
 void printinfo(int temperature, int resprate, int heartrate){
@@ -191,4 +211,5 @@ void color(byte x,byte y){
   Serial.print(x);
   Serial.print(",");
   Serial.println(y);
+  display.drawPixel(x,y, 0);
 }
