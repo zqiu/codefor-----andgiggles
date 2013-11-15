@@ -59,10 +59,7 @@ void setup(){
   display.begin();
   display.clearDisplay();
 
-  printheart();
-  printtemp();
-  printresp();
-  printcal();
+  printrhs();
   
   display.refresh();
   delay(500);
@@ -121,6 +118,13 @@ void waitforinput(){
   while(Serial.available() == 0){
     delay(DELAYONREAD);
   }
+}
+
+void printrhs(){
+  printheart();
+  printtemp();
+  printresp();
+  printcal();
 }
 
 void printheart(){
