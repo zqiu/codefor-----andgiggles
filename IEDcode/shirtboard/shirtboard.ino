@@ -17,11 +17,12 @@
 #define RESPORT        1
 #define HEARTRATEPORT  2
 
-#define RESTHRESHOLD  2.95
+#define RESTHRESHOLD  2.86 //.02 resistance difference. need to find the threshold
+#define HEARTTHRESHOLD  2.56 //voltage value. need to find the threshold
 
 RFM12B radio;
 byte sendSize=0,read = 0;
-bool requestACK=false,resting=false;
+bool requestACK=false,resting=false,heartbeat=false;
 char payload[30],scratch[10];
 int temp,res,heart,temptot = 0,rescount = 0,heartcount = 0;
 
@@ -43,8 +44,7 @@ void setup(){
 }
 
 //will readin values for the sensor and communicate with the main board 
-void loop(){
-  
+void loop(){ 
   temp = analogRead(TEMPPORT);
   res = analogRead(RESPORT);
   heart = analogRead(HEARTRATEPORT);
@@ -60,7 +60,13 @@ void loop(){
   if(!resting && res < RESTHRESHOLD){
     resting = true;
   }
-  
+  if(heartbeat && heart > HEARTTHRESHOLD){
+    heartbeat = false;
+    heartcount += 1;
+  }
+  if(!heartbeat && heart < HEARTTHRESHOLD){
+    heartbeat = true;
+  } 
       
   if(!read){
     itoa(temptot/NUMBERREADFORSEND,scratch,10);
@@ -111,4 +117,3 @@ void copy(char * to, char * from, byte beg, byte num){
     to[i+beg] = from[i];
   }
 }
-
