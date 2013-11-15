@@ -30,6 +30,7 @@ void setup(){
   pinMode(GROUND,OUTPUT);
   digitalWrite(POWER,HIGH);
   digitalWrite(GROUND,LOW);
+  
 /*  Serial.begin(SERIAL_BAUD);
   while(!male){
     Serial.println("are you a male?y/n");
@@ -53,7 +54,11 @@ void setup(){
   temporary = (byte)(206.9 - (0.67 * age));
   radio.Initialize(NODEID, RF12_433MHZ, NETWORKID);
   Serial.println("Listening...");
-*/    
+*/
+
+  display.begin();
+  display.clearDisplay();
+
   printheart();
   printtemp();
   printresp();
@@ -61,7 +66,6 @@ void setup(){
   
   display.refresh();
   delay(500);
-  
 }
 
 void loop(){
@@ -138,7 +142,7 @@ void printheart(){
 
 void printtemp(){
   colorblock(16,26,3,16);
-  colorblock(29,23,17,2);
+  colorblock(23,29,17,2);
 }
 
 void printresp(){
@@ -163,6 +167,7 @@ void printcal(){
   colorblock(26,78,2,2);
   colorblock(19,80,15,2);  
   colorblock(27,80,15,2);
+  colorblock(21,83,2,6);
   colorblock(31,74,19,2);
   colorblock(31,93,2,9);
 }
