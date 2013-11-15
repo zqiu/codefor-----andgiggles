@@ -9,19 +9,21 @@
 #define GATEWAYID     1  //the node ID we're sending to
 #define ACK_TIME     50  // # of ms to wait for an ack
 #define SERIAL_BAUD  115200
-#define READDELAY  10 //#of ms to wait between sending packets
-#define NUMBERFOREACK    10
-#define NUMBERREADFORSEND 10
+#define READDELAY  5 //#of ms to wait between reading sensors
+#define NUMBERFOREACK    100  //send ack every 10 sec
+#define NUMBERREADFORSEND 20  //so send every 100ms
 
 #define TEMPPORT       0
 #define RESPORT        1
 #define HEARTRATEPORT  2
 
+#define RESTHRESHOLD  2.95
+
 RFM12B radio;
 byte sendSize=0,read = 0;
-bool requestACK=false;
+bool requestACK=false,resting=false;
 char payload[30],scratch[10];
-int temp,res,heart;
+int temp,res,heart,temptot = 0,rescount = 0,heartcount = 0;
 
 //set the ports for input and output
 void setup(){
@@ -50,14 +52,24 @@ void loop(){
   printinfo(temp,res,heart);
   Serial.println();
   
-  itoa(temp,scratch,10);
-  copy(payload,scratch,0,10);
-  itoa(res,scratch,10);
-  copy(payload,scratch,10,10);
-  itoa(heart,scratch,10);
-  copy(payload,scratch,20,10);
+  temptot += temp;
+  if(resting && res > RESTHRESHOLD){
+    resting = false;
+    rescount += 1;
+  }
+  if(!resting && res < RESTHRESHOLD){
+    resting = true;
+  }
   
+      
   if(!read){
+    itoa(temptot/NUMBERREADFORSEND,scratch,10);
+    copy(payload,scratch,0,10);
+    itoa(rescount,scratch,10);
+    copy(payload,scratch,10,10);
+    itoa(heartcount,scratch,10);
+    copy(payload,scratch,20,10);
+
     requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
     radio.Wakeup();
     radio.Send(GATEWAYID, payload, sendSize+1, requestACK);
