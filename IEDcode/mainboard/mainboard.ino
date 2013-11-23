@@ -1,4 +1,3 @@
-
 /*code for the main board*/
 #include <RFM12B.h>
 #include <Adafruit_GFX.h>
@@ -32,7 +31,7 @@ void setup(){
   digitalWrite(POWER,HIGH);
   digitalWrite(GROUND,LOW);
   
-/*  Serial.begin(SERIAL_BAUD);
+/*Serial.begin(SERIAL_BAUD);
   while(!male){
     Serial.println("are you a male?y/n");
     waitforinput();
@@ -58,40 +57,17 @@ void setup(){
 */
 
   display.begin();
-  display.clearDisplay();
-
   printrhs();
   
+  display.clearDisplay();
   display.refresh();
   delay(500);
 }
 
 void loop(){
-  i = (i+1)%10;
   printrhs();
-  make_number(50,1,i);
-  make_number(50,25,i);
-  make_number(50,73,i);
-  
-  make_number(62,1,i);
-  make_number(62,25,i);
-  make_number(62,49,i);
-  make_number(62,73,i);
-  
-  make_number(74,1,i);
-  make_number(74,25,i);
-  make_number(74,49,i);
-  make_number(74,73,i);
-  
-  colorblock(72,46,2,2);
-  colorblock(87,31,3,2);
-  colorblock(90,33,1,3);
-  colorblock(90,34,5,1);
-  colorblock(90,39,1,3);
-  
-  printbm(87,3);
-  printbm(87,51);
-  
+  printnumbers(temp,res,heart);
+  display.clearDisplay();
   display.refresh();
   dalay (500);
   /*if (radio.ReceiveComplete()){
@@ -158,6 +134,31 @@ void waitforinput(){
   while(Serial.available() == 0){
     delay(DELAYONREAD);
   }
+}
+
+void printnumbers(int temperature, int resprate, int heartrate, int i){
+  make_number(50,1,i);
+  make_number(50,25,i);
+  make_number(50,73,i);
+  
+  make_number(62,1,i);
+  make_number(62,25,i);
+  make_number(62,49,i);
+  make_number(62,73,i);
+  
+  make_number(74,1,i);
+  make_number(74,25,i);
+  make_number(74,49,i);
+  make_number(74,73,i);
+  
+  colorblock(72,46,2,2);
+  colorblock(87,31,3,2);
+  colorblock(90,33,1,3);
+  colorblock(90,34,5,1);
+  colorblock(90,39,1,3);
+  
+  printbm(87,3);
+  printbm(87,51);
 }
 
 void printrhs(){
