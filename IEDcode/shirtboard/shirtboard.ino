@@ -3,28 +3,29 @@
 */
 #include <RFM12B.h>
 #include <avr/sleep.h>
+#include <SPI.h>
 
 #define NODEID        2  //network ID used for this unit
 #define NETWORKID    99  //the network ID we are on
 #define GATEWAYID     1  //the node ID we're sending to
 #define ACK_TIME     50  // # of ms to wait for an ack
 #define SERIAL_BAUD  115200
-#define READDELAY  5 //#of ms to wait between reading sensors
+#define READDELAY  5 		//#of ms to wait between reading sensors
 #define NUMBERFOREACK    100  //send ack every 10 sec
 #define NUMBERREADFORSEND 20  //so send every 100ms
 
-#define TEMPPORT       0
-#define RESPORT        1
-#define HEARTRATEPORT  2
+#define TEMPPORT       A0
+#define RESPORT        A1
+#define HEARTRATEPORT  A2
 
-#define RESTHRESHOLD  2.86 //.02 resistance difference. need to find the threshold
-#define HEARTTHRESHOLD  2.56 //voltage value. need to find the threshold
+#define RESTHRESHOLD  2.86
+#define HEARTTHRESHOLD  2.56 
 
 RFM12B radio;
 byte sendSize=0,read = 0;
 bool requestACK=false,resting=false,heartbeat=false;
 char payload[30],scratch[10];
-int temp,res,heart,temptot = 0,rescount = 0,heartcount = 0;
+unsigned int temp,res,heart,temptot = 0,rescount = 0,heartcount = 0;
 
 //set the ports for input and output
 void setup(){
@@ -33,6 +34,9 @@ void setup(){
   pinMode(TEMPPORT, INPUT);
   pinMode(RESPORT, INPUT);
   pinMode(HEARTRATEPORT, INPUT);
+  digitalWrite(TEMPPORT, LOW);
+  digitalWrite(RESPORT, LOW);
+  digitalWrite(HEARTRATEPORT, LOW);
   
   radio.Initialize(NODEID, RF12_433MHZ, NETWORKID);
   if (waitForAck()){
@@ -41,13 +45,16 @@ void setup(){
       Serial.print("nothing...\n");
   }
   radio.Sleep();
+  
+  SPI.setClockDivider(64);
+  SPI.begin();
 }
 
 //will readin values for the sensor and communicate with the main board 
 void loop(){ 
-  temp = analogRead(TEMPPORT);
-  res = analogRead(RESPORT);
-  heart = analogRead(HEARTRATEPORT);
+  temp = analogRead(TEMPPORT) & 0x03FF;
+  res = analogRead(RESPORT) & 0x03FF;
+  heart = analogRead(HEARTRATEPORT) & 0x03FF;
   Serial.print("read in ");
   printinfo(temp,res,heart);
   Serial.println();
@@ -110,6 +117,15 @@ void printinfo(int temperature, int resprate, int heartrate){
   Serial.print(resprate);
   Serial.print(",heart:");
   Serial.print(heartrate);
+}
+
+void printSPI(int temperature, int resprate, int heartrate){
+  SPI.transfer(temperature >> 8);
+  SPI.transfer(temperature & 0x00FF);
+  SPI.transfer(resprate >> 8);
+  SPI.transfer(resprate & 0x00FF);
+  SPI.transfer(heartrate >> 8);
+  SPI.transfer(heartrate & 0x00FF);
 }
 
 void copy(char * to, char * from, byte beg, byte num){
