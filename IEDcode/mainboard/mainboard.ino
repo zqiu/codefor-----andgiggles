@@ -24,6 +24,7 @@ int temp,res,heart;
 char scratch[10];
 bool male = false;
 byte age,weight,restingrate,temporary;
+char i = 0;
 
 void setup(){
   pinMode(POWER,OUTPUT);
@@ -66,6 +67,33 @@ void setup(){
 }
 
 void loop(){
+  i = (i+1)%10;
+  printrhs();
+  make_number(50,1,i);
+  make_number(50,25,i);
+  make_number(50,73,i);
+  
+  make_number(62,1,i);
+  make_number(62,25,i);
+  make_number(62,49,i);
+  make_number(62,73,i);
+  
+  make_number(74,1,i);
+  make_number(74,25,i);
+  make_number(74,49,i);
+  make_number(74,73,i);
+  
+  colorblock(72,46,2,2);
+  colorblock(87,31,3,2);
+  colorblock(90,33,1,3);
+  colorblock(90,34,5,1);
+  colorblock(90,39,1,3);
+  
+  printbm(87,3);
+  printbm(87,51);
+  
+  display.refresh();
+  dalay (500);
   /*if (radio.ReceiveComplete()){
     if (radio.CRCPass()){
       Serial.print('[');Serial.print(radio.GetSender());Serial.print("] ");
@@ -97,6 +125,18 @@ void loop(){
     Serial.println();
   }
   */
+}
+
+void printbm(int x,int y){
+  colorblock(x+1,y,1,3);
+  colorblock(x+1,y+1,5,1);
+  colorblock(x+1,y+6,1,3);
+  colorblock(x+2,y+3,1,1);
+  colorblock(x,y+9,1,5);
+  colorblock(x,y+13,6,1);
+  colorblock(x+2,y+13,6,1);
+  colorblock(x+4,y+13,6,1);
+  colorblock(x,y+12,1,5);
 }
 
 void printinfo(int temperature, int resprate, int heartrate){
