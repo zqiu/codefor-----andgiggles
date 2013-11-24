@@ -10,22 +10,20 @@
 #define GATEWAYID     1  //the node ID we're sending to
 #define ACK_TIME     50  // # of ms to wait for an ack
 #define SERIAL_BAUD  115200
-#define READDELAY  		20 	//#of ms to wait between reading sensors
-#define NUMBERFOREACK    10  //send ack every 10 sec
-#define NUMBERREADFORSEND 50  //so send every 1s
+#define READDELAY  		40 	//#of ms to wait between reading sensors
+#define NUMBERFOREACK    5  //send ack every 20 sec
+#define NUMBERREADFORSEND 100  //so send every 4s
 
 #define TEMPPORT       A0
 #define RESPORT        A1
 #define HEARTRATEPORT  A2
-
-#define RESTHRESHOLD  2.86
-#define HEARTTHRESHOLD  2.56 
 
 RFM12B radio;
 byte sendSize=0,read = 0;
 bool requestACK=false,resting=false,heartbeat=false;
 char payload[30],scratch[10];
 unsigned int temp,res,heart,temptot = 0,rescount = 0,heartcount = 0;
+unsigned int maxresp,maxhrt,minresp,minhrt;
 
 //set the ports for input and output
 void setup(){
@@ -48,6 +46,21 @@ void setup(){
   
   SPI.setClockDivider(64);
   SPI.begin();
+  
+  initvalues();
+  SPI.transfer(maxresp >> 8);
+  SPI.transfer(maxresp & 0x00FF);
+  SPI.transfer(minresp >> 8);
+  SPI.transfer(minresp & 0x00FF);  
+  SPI.transfer(maxhrt >> 8);
+  SPI.transfer(maxhrt & 0x00FF);
+  SPI.transfer(minhrt >> 8);
+  SPI.transfer(minhrt & 0x00FF);
+  
+  minresp += (maxresp - minresp)/3;
+  maxresp = (maxresp + minresp) >> 1;
+  minhrt += (maxhrt - minhrt)/3;
+  maxhrt = (maxhrt + minhrt) >> 1;
 }
 
 //will readin values for the sensor and communicate with the main board 
@@ -60,18 +73,18 @@ void loop(){
   Serial.println();
   
   temptot += temp;
-  if(resting && res > RESTHRESHOLD){
+  if(resting && res > maxresp){
     resting = false;
     rescount += 1;
   }
-  if(!resting && res < RESTHRESHOLD){
+  if(!resting && res < minresp){
     resting = true;
   }
-  if(heartbeat && heart > HEARTTHRESHOLD){
+  if(heartbeat && heart > maxhrt){
     heartbeat = false;
     heartcount += 1;
   }
-  if(!heartbeat && heart < HEARTTHRESHOLD){
+  if(!heartbeat && heart < minhrt){
     heartbeat = true;
   } 
       
@@ -134,4 +147,17 @@ void copy(char * to, char * from, byte beg, byte num){
   for(byte i = 0; i < num; ++i){
     to[i+beg] = from[i];
   }
+}
+
+void initvalues(){
+	unsigned int i;
+	for(i = 0; i < 400; ++i){
+		resp = analogRead(A1) & 0x03FF;
+		heart = analogRead(A2) & 0x03FF;
+		maxresp = (resp> maxresp) ? resp: maxresp;
+		maxhrt = (hrt> maxhrt) ? hrt: maxhrt;
+		minresp = (resp < minresp) ? resp: minresp;
+		minhrt = (hrt < minhrt) ? hrt: minhrt;		
+		delay(10);
+	}
 }
