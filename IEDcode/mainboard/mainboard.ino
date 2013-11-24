@@ -3,6 +3,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
 #include <math.h>
+#include <SD.h>
 
 #define NODEID           1  //network ID used for this unit
 #define NETWORKID       99  //the network ID we are on
@@ -12,6 +13,7 @@
 #define SCK 7
 #define MOSI 8
 #define SS 9
+#define CS 4
 
 #define POWER 4
 #define GROUND 6
@@ -29,6 +31,7 @@ bool male = false;
 byte temp0disp,temp1disp,respdisp,heartdisp;
 byte age,weight,restingrate,temporary;
 byte packetnum = 0;
+File logfile;
 
 void setup(){
   byte i;
@@ -36,6 +39,17 @@ void setup(){
   pinMode(GROUND,OUTPUT);
   digitalWrite(POWER,HIGH);
   digitalWrite(GROUND,LOW);
+  
+  pinMode(10, OUTPUT);//for the SD card. Hardware SS must be output
+  if (!SD.begin(CS)) {
+    Serial.println("initialization failed!");
+  }else{
+    logfile = SD.open("log.txt", FILE_WRITE);
+    if(logfile){
+      logfile.println("STARTLOGFILE");
+    }
+    Serial.println("initialization done.");
+  }
   
   for(i = 0; i < 15; ++i){
 	res[i] = 3;
@@ -72,7 +86,6 @@ void setup(){
   display.begin();
   printrhs();
   printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
-  
   display.clearDisplay();
   display.refresh();
   delay(500);
@@ -117,11 +130,20 @@ void loop(){
       Serial.print("BAD-CRC");
     Serial.println();
   }
-
   printrhs();
   printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
   display.clearDisplay();
   display.refresh();
+  if(logfile){
+    logfile.print("temp:");
+    logfile.print(temp0disp);
+    logfile.print(".");
+    logfile.print(temp1disp);
+    logfile.print(",resp:");
+    logfile.print(respdisp);
+    logfile.print(",heartrate:");
+    logfile.println(heartdisp);
+  }
   i = (i + 1)%15;
   delay(500);
 }
@@ -274,8 +296,5 @@ void colorblock(byte x, byte y, byte height, byte width){
 }
 
 void color(byte x,byte y){
-  Serial.print(x);
-  Serial.print(",");
-  Serial.println(y);
-  display.drawPixel(x,y, 0);
+  display.drawPixel(96-x,96-y,0);
 }
