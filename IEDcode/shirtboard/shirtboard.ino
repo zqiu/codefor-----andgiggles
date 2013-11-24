@@ -10,7 +10,7 @@
 #define GATEWAYID     1  //the node ID we're sending to
 #define ACK_TIME     50  // # of ms to wait for an ack
 #define SERIAL_BAUD  115200
-#define READDELAY  		40 	//#of ms to wait between reading sensors
+#define READDELAY      40 	//#of ms to wait between reading sensors
 #define NUMBERFOREACK    5  //send ack every 20 sec
 #define NUMBERREADFORSEND 100  //so send every 4s
 
@@ -96,7 +96,7 @@ void loop(){
     itoa(heartcount,scratch,10);
     copy(payload,scratch,20,10);
 
-	printSPI(temptot/NUMBERREADFORSEND,rescount,heartcount);
+    printSPI(temptot/NUMBERREADFORSEND,rescount,heartcount);
 	
     requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
     radio.Wakeup();
@@ -111,6 +111,9 @@ void loop(){
     }
     radio.Sleep();
     sendSize = (sendSize + 1) % NUMBERFOREACK;  //add one to send size and reset to zero if overflow
+    temptot = 0;
+    rescount = 0;
+    heartcount = 0;
   }
   read = (read + 1) % NUMBERREADFORSEND;
   delay(READDELAY);
@@ -150,14 +153,14 @@ void copy(char * to, char * from, byte beg, byte num){
 }
 
 void initvalues(){
-	unsigned int i;
-	for(i = 0; i < 400; ++i){
-		res = analogRead(A1) & 0x03FF;
-		heart = analogRead(A2) & 0x03FF;
-		maxresp = (res> maxresp) ? res: maxresp;
-		maxhrt = (heart> maxhrt) ? heart: maxhrt;
-		minresp = (res < minresp) ? res: minresp;
-		minhrt = (heart < minhrt) ? heart: minhrt;		
-		delay(10);
-	}
+  unsigned int i;
+  for(i = 0; i < 400; ++i){
+    res = analogRead(A1) & 0x03FF;
+    heart = analogRead(A2) & 0x03FF;
+    maxresp = (res> maxresp) ? res: maxresp;
+    maxhrt = (heart> maxhrt) ? heart: maxhrt;
+    minresp = (res < minresp) ? res: minresp;
+    minhrt = (heart < minhrt) ? heart: minhrt;		
+    delay(10);
+  }
 }

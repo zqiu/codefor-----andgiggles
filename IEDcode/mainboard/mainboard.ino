@@ -22,9 +22,7 @@
 #define RINFINITY 	100
 
 Adafruit_SharpMem display(SCK, MOSI, SS);
-
-// Need an instance of the Radio Module
-RFM12B radio;
+RFM12B radio; // Need an instance of the Radio Module
 unsigned int temp,res[15],heart[15];
 char scratch[10];
 bool male = false;
@@ -35,22 +33,6 @@ File logfile;
 
 void setup(){
   byte i;
-  pinMode(POWER,OUTPUT);
-  pinMode(GROUND,OUTPUT);
-  digitalWrite(POWER,HIGH);
-  digitalWrite(GROUND,LOW);
-  
-  pinMode(10, OUTPUT);//for the SD card. Hardware SS must be output
-  if (!SD.begin(CS)) {
-    Serial.println("initialization failed!");
-  }else{
-    logfile = SD.open("log.txt", FILE_WRITE);
-    if(logfile){
-      logfile.println("STARTLOGFILE");
-    }
-    Serial.println("initialization done.");
-  }
-  
   for(i = 0; i < 15; ++i){
 	res[i] = 3;
 	heart[i] = 8;
@@ -58,7 +40,7 @@ void setup(){
   temp0disp = 37;
   respdisp = 45;
   heartdisp = 100;
-  
+    
   Serial.begin(SERIAL_BAUD);
   while(!male){
     Serial.println("are you a male?y/n");
@@ -80,9 +62,25 @@ void setup(){
   waitforinput();
   restingrate = constrain(Serial.parseInt(), 0, 255);
   temporary = (byte)(206.9 - (0.67 * age));
+
+  pinMode(10, OUTPUT);//for the SD card. Hardware SS must be output
+  if (!SD.begin(CS)) {
+    Serial.println("initialization failed!");
+  }else{
+    logfile = SD.open("log.txt", FILE_WRITE);
+    if(logfile){
+      logfile.println("STARTLOGFILE");
+    }
+    Serial.println("initialization done.");
+  }
+
   radio.Initialize(NODEID, RF12_433MHZ, NETWORKID);
   Serial.println("Listening...");
 
+  pinMode(POWER,OUTPUT);
+  pinMode(GROUND,OUTPUT);
+  digitalWrite(POWER,HIGH);
+  digitalWrite(GROUND,LOW);
   display.begin();
   printrhs();
   printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
@@ -180,8 +178,7 @@ void printnumbers(byte temp1, byte temp2, byte resp, byte heart){
   make_number(50,25,temp1/10);
   make_number(62,25,temp1%10);
   make_number(74,25,temp2%10);
-  
-  
+    
   make_number(62,49,resp/10);
   make_number(74,49,resp%10);
   
