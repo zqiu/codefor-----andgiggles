@@ -43,7 +43,7 @@ void setup(){
   }
   temp0disp = 37;
   respdisp = 45;
-  heart = 100;
+  heartdisp = 100;
   
   Serial.begin(SERIAL_BAUD);
   while(!male){
@@ -92,11 +92,11 @@ void loop(){
       heart[packetnum] = atoi(scratch);
 	  respdisp = 0;
 	  heartdisp = 0;
-	  for(i = 0; j < 15; ++j){
+	  for(i = 0; i < 15; ++i){
 		respdisp += res[i];
 		heartdisp += heart[i];
 	  }
-	  convertedtemp = 10*BETA/log((sqrt(50000.0*5000.0+1023.0/temp) - 50000.0)/RINFINITY)
+	  convertedtemp = 10*BETA/log((sqrt(50000.0*5000.0+1023.0/temp) - 50000.0)/RINFINITY);
 	  temp0disp = convertedtemp/10;
 	  temp1disp = convertedtemp%10;
       if(respdisp < 10 || respdisp > 55){
@@ -123,7 +123,7 @@ void loop(){
   display.clearDisplay();
   display.refresh();
   i = (i + 1)%15;
-  dalay (500);
+  delay(500);
 }
 
 void copy(char * to, char * from, byte beg, byte num){

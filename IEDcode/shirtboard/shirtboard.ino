@@ -152,12 +152,12 @@ void copy(char * to, char * from, byte beg, byte num){
 void initvalues(){
 	unsigned int i;
 	for(i = 0; i < 400; ++i){
-		resp = analogRead(A1) & 0x03FF;
+		res = analogRead(A1) & 0x03FF;
 		heart = analogRead(A2) & 0x03FF;
-		maxresp = (resp> maxresp) ? resp: maxresp;
-		maxhrt = (hrt> maxhrt) ? hrt: maxhrt;
-		minresp = (resp < minresp) ? resp: minresp;
-		minhrt = (hrt < minhrt) ? hrt: minhrt;		
+		maxresp = (res> maxresp) ? res: maxresp;
+		maxhrt = (heart> maxhrt) ? heart: maxhrt;
+		minresp = (res < minresp) ? res: minresp;
+		minhrt = (heart < minhrt) ? heart: minhrt;		
 		delay(10);
 	}
 }
