@@ -19,11 +19,11 @@ Adafruit_SharpMem display(SCK, MOSI, SS);
 
 // Need an instance of the Radio Module
 RFM12B radio;
-int temp,res,heart;
+unsigned int temp,res[15],heart[15];
 char scratch[10];
 bool male = false;
+byte temp0disp,temp1disp,respdisp,heartdisp;
 byte age,weight,restingrate,temporary;
-char i = 0;
 
 void setup(){
   pinMode(POWER,OUTPUT);
@@ -31,7 +31,7 @@ void setup(){
   digitalWrite(POWER,HIGH);
   digitalWrite(GROUND,LOW);
   
-/*Serial.begin(SERIAL_BAUD);
+  Serial.begin(SERIAL_BAUD);
   while(!male){
     Serial.println("are you a male?y/n");
     waitforinput();
@@ -54,7 +54,6 @@ void setup(){
   temporary = (byte)(206.9 - (0.67 * age));
   radio.Initialize(NODEID, RF12_433MHZ, NETWORKID);
   Serial.println("Listening...");
-*/
 
   display.begin();
   printrhs();
@@ -66,7 +65,7 @@ void setup(){
 
 void loop(){
   printrhs();
-  printnumbers(temp,res,heart);
+  printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
   display.clearDisplay();
   display.refresh();
   dalay (500);
@@ -103,27 +102,6 @@ void loop(){
   */
 }
 
-void printbm(int x,int y){
-  colorblock(x+1,y,1,3);
-  colorblock(x+1,y+1,5,1);
-  colorblock(x+1,y+6,1,3);
-  colorblock(x+2,y+3,1,1);
-  colorblock(x,y+9,1,5);
-  colorblock(x,y+13,6,1);
-  colorblock(x+2,y+13,6,1);
-  colorblock(x+4,y+13,6,1);
-  colorblock(x,y+12,1,5);
-}
-
-void printinfo(int temperature, int resprate, int heartrate){
-  Serial.print("temp:");
-  Serial.print(temperature);
-  Serial.print(",res:");
-  Serial.print(resprate);
-  Serial.print(",heart:");
-  Serial.print(heartrate);
-}
-
 void copy(char * to, char * from, byte beg, byte num){
   for(byte i = 0; i < num; ++i){
     to[i+beg] = from[i];
@@ -136,20 +114,34 @@ void waitforinput(){
   }
 }
 
-void printnumbers(int temperature, int resprate, int heartrate, int i){
-  make_number(50,1,i);
-  make_number(50,25,i);
-  make_number(50,73,i);
+void printbm(int x,int y){
+  colorblock(x+1,y,1,3);
+  colorblock(x+1,y+1,5,1);
+  colorblock(x+1,y+6,1,3);
+  colorblock(x+2,y+3,1,1);
+  colorblock(x,y+9,1,5);
+  colorblock(x,y+13,6,1);
+  colorblock(x+2,y+13,6,1);
+  colorblock(x+4,y+13,6,1);
+  colorblock(x,y+12,1,5);
+}
+
+void printnumbers(byte temp1, byte temp2, byte resp, byte heart){
+  make_number(50,1,heart/100);
+  make_number(62,1,(heart/10)%10);
+  make_number(74,1,heart%100);
   
-  make_number(62,1,i);
-  make_number(62,25,i);
-  make_number(62,49,i);
-  make_number(62,73,i);
+  make_number(50,25,temp1/10);
+  make_number(62,25,temp1%10);
+  make_number(74,25,temp2%10);
   
-  make_number(74,1,i);
-  make_number(74,25,i);
-  make_number(74,49,i);
-  make_number(74,73,i);
+  
+  make_number(62,49,resp/10);
+  make_number(74,49,resp%10);
+  
+  make_number(62,73,9);
+  make_number(50,73,9);
+  make_number(74,73,9);
   
   colorblock(72,46,2,2);
   colorblock(87,31,3,2);
