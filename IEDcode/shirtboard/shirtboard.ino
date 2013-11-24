@@ -10,9 +10,9 @@
 #define GATEWAYID     1  //the node ID we're sending to
 #define ACK_TIME     50  // # of ms to wait for an ack
 #define SERIAL_BAUD  115200
-#define READDELAY  5 		//#of ms to wait between reading sensors
-#define NUMBERFOREACK    100  //send ack every 10 sec
-#define NUMBERREADFORSEND 20  //so send every 100ms
+#define READDELAY  		20 	//#of ms to wait between reading sensors
+#define NUMBERFOREACK    10  //send ack every 10 sec
+#define NUMBERREADFORSEND 50  //so send every 1s
 
 #define TEMPPORT       A0
 #define RESPORT        A1
@@ -83,6 +83,8 @@ void loop(){
     itoa(heartcount,scratch,10);
     copy(payload,scratch,20,10);
 
+	printSPI(temptot/NUMBERREADFORSEND,rescount,heartcount);
+	
     requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
     radio.Wakeup();
     radio.Send(GATEWAYID, payload, sendSize+1, requestACK);
