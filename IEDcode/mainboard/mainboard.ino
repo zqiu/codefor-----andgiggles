@@ -2,8 +2,8 @@
 #include <RFM12B.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
-#include <math.h>
 #include <SD.h>
+#include <math.h>
 
 #define NODEID           1  //network ID used for this unit
 #define NETWORKID       99  //the network ID we are on
@@ -19,7 +19,7 @@
 #define GROUND 6
 
 #define BETA 		40
-#define RINFINITY 	100
+#define RINFINITY 	100  //in kiloohms
 
 Adafruit_SharpMem display(SCK, MOSI, SS);
 RFM12B radio; // Need an instance of the Radio Module
@@ -107,7 +107,7 @@ void loop(){
 		respdisp += res[i];
 		heartdisp += heart[i];
 	  }
-	  convertedtemp = 10*BETA/log((sqrt(50000.0*5000.0+1023.0/temp) - 50000.0)/RINFINITY);
+	  convertedtemp = 10*BETA/log(330*temp/((3375-3.3*temp)*RINFINITY));
 	  temp0disp = convertedtemp/10;
 	  temp1disp = convertedtemp%10;
       if(respdisp < 10 || respdisp > 55){
