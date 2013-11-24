@@ -1,3 +1,0 @@
-convert voltage value to readable sensor values
-read in sensor values more frequently
-store characteristic into sd card

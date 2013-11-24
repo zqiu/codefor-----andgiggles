@@ -2,6 +2,7 @@
 #include <RFM12B.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
+#include <math.h>
 
 #define NODEID           1  //network ID used for this unit
 #define NETWORKID       99  //the network ID we are on
@@ -15,6 +16,9 @@
 #define POWER 4
 #define GROUND 6
 
+#define BETA 		40
+#define RINFINITY 	100
+
 Adafruit_SharpMem display(SCK, MOSI, SS);
 
 // Need an instance of the Radio Module
@@ -24,12 +28,22 @@ char scratch[10];
 bool male = false;
 byte temp0disp,temp1disp,respdisp,heartdisp;
 byte age,weight,restingrate,temporary;
+byte packetnum = 0;
 
 void setup(){
+  byte i;
   pinMode(POWER,OUTPUT);
   pinMode(GROUND,OUTPUT);
   digitalWrite(POWER,HIGH);
   digitalWrite(GROUND,LOW);
+  
+  for(i = 0; i < 15; ++i){
+	res[i] = 3;
+	heart[i] = 8;
+  }
+  temp0disp = 37;
+  respdisp = 45;
+  heart = 100;
   
   Serial.begin(SERIAL_BAUD);
   while(!male){
@@ -57,6 +71,7 @@ void setup(){
 
   display.begin();
   printrhs();
+  printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
   
   display.clearDisplay();
   display.refresh();
@@ -64,32 +79,35 @@ void setup(){
 }
 
 void loop(){
-  printrhs();
-  printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
-  display.clearDisplay();
-  display.refresh();
-  dalay (500);
-  /*if (radio.ReceiveComplete()){
+  byte i;
+  int convertedtemp = 0;
+  if (radio.ReceiveComplete()){
     if (radio.CRCPass()){
       Serial.print('[');Serial.print(radio.GetSender());Serial.print("] ");
       copy(scratch,(char*)radio.Data,0,10);
       temp = atoi(scratch);
       copy(scratch,(char*)radio.Data,10,10);
-      res = atoi(scratch);
+      res[packetnum] = atoi(scratch);
       copy(scratch,(char*)radio.Data,20,10);
-      heart = atoi(scratch);
-      printinfo(temp,res,heart);
-      //TODO:convert readings of voltage value to measured values
-      if(res < 10 || res > 55){
+      heart[packetnum] = atoi(scratch);
+	  respdisp = 0;
+	  heartdisp = 0;
+	  for(i = 0; j < 15; ++j){
+		respdisp += res[i];
+		heartdisp += heart[i];
+	  }
+	  convertedtemp = 10*BETA/log((sqrt(50000.0*5000.0+1023.0/temp) - 50000.0)/RINFINITY)
+	  temp0disp = convertedtemp/10;
+	  temp1disp = convertedtemp%10;
+      if(respdisp < 10 || respdisp > 55){
         Serial.println("respitory rate out of range");
       }
-      if(heart > temporary || heart < restingrate){
+      if(heartdisp > temporary || heartdisp < restingrate){
         Serial.println("heartrate out of range");
       }
-      if(temp > 40 || temp < 35){
+      if(temp0disp > 40 || temp0disp < 35){
         Serial.println("temp out of range");      
       }
-      //TODO:print out numbers to screen
       if (radio.ACKRequested()){
         radio.SendACK();
         Serial.print(" - ACK sent");
@@ -99,7 +117,13 @@ void loop(){
       Serial.print("BAD-CRC");
     Serial.println();
   }
-  */
+
+  printrhs();
+  printnumbers(temp0disp,temp1disp,respdisp,heartdisp);
+  display.clearDisplay();
+  display.refresh();
+  i = (i + 1)%15;
+  dalay (500);
 }
 
 void copy(char * to, char * from, byte beg, byte num){
