@@ -1,6 +1,3 @@
-/*
-  code for the microcontroller on the shirt
-*/
 #include <RFM12B.h>
 #include <avr/sleep.h>
 #include <SPI.h>
@@ -21,9 +18,9 @@
 RFM12B radio;
 byte sendSize=0,read = 0;
 bool requestACK=false,resting=false,heartbeat=false;
-char payload[30],scratch[10];
+char payload[6];
 unsigned int temp,res,heart,temptot = 0,rescount = 0,heartcount = 0;
-unsigned int maxresp,maxhrt,minresp,minhrt;
+unsigned int maxresp = 0,maxhrt=0,minresp=1023,minhrt=1023;
 
 //set the ports for input and output
 void setup(){
@@ -63,7 +60,6 @@ void setup(){
   maxhrt = (maxhrt + minhrt) >> 1;
 }
 
-//will readin values for the sensor and communicate with the main board 
 void loop(){ 
   temp = analogRead(TEMPPORT) & 0x03FF;
   res = analogRead(RESPORT) & 0x03FF;
@@ -89,14 +85,15 @@ void loop(){
   } 
       
   if(!read){
-    itoa(temptot/NUMBERREADFORSEND,scratch,10);
-    copy(payload,scratch,0,10);
-    itoa(rescount,scratch,10);
-    copy(payload,scratch,10,10);
-    itoa(heartcount,scratch,10);
-    copy(payload,scratch,20,10);
+    temptot /= NUMBERREADFORSEND;
+	payload[0] = temptot >> 8;
+	payload[1] = temptot & 0x00FF;
+	payload[2] = rescount >> 8;
+	payload[3] = rescount & 0x00FF;
+	payload[4] = heartcount >> 8;
+	payload[5] = heartcount & 0x00FF;
 
-    printSPI(temptot/NUMBERREADFORSEND,rescount,heartcount);
+    printSPI(temptot,rescount,heartcount);
 	
     requestACK =! sendSize; //request ACK everysingle time this is the first message in chunk
     radio.Wakeup();
@@ -119,7 +116,6 @@ void loop(){
   delay(READDELAY);
 }
 
-// wait a few milliseconds for proper ACK, return true if received
 static bool waitForAck() {
   long now = millis();
   while (millis() - now <= ACK_TIME)
@@ -144,12 +140,6 @@ void printSPI(int temperature, int resprate, int heartrate){
   SPI.transfer(resprate & 0x00FF);
   SPI.transfer(heartrate >> 8);
   SPI.transfer(heartrate & 0x00FF);
-}
-
-void copy(char * to, char * from, byte beg, byte num){
-  for(byte i = 0; i < num; ++i){
-    to[i+beg] = from[i];
-  }
 }
 
 void initvalues(){

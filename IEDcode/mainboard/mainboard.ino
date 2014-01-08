@@ -1,4 +1,3 @@
-/*code for the main board*/
 #include <RFM12B.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SharpMem.h>
@@ -24,7 +23,6 @@
 Adafruit_SharpMem display(SCK, MOSI, SS);
 RFM12B radio; // Need an instance of the Radio Module
 unsigned int temp,res[15],heart[15];
-char scratch[10];
 bool male = false;
 byte temp0disp,temp1disp,respdisp,heartdisp;
 byte age,weight,restingrate,temporary;
@@ -95,19 +93,16 @@ void loop(){
   if (radio.ReceiveComplete()){
     if (radio.CRCPass()){
       Serial.print('[');Serial.print(radio.GetSender());Serial.print("] ");
-      copy(scratch,(char*)radio.Data,0,10);
-      temp = atoi(scratch);
-      copy(scratch,(char*)radio.Data,10,10);
-      res[packetnum] = atoi(scratch);
-      copy(scratch,(char*)radio.Data,20,10);
-      heart[packetnum] = atoi(scratch);
+      tamp = (char*)radio.Data[0] << 8 + (char*)radio.Data[1];
+      res[packetnum] = (char*)radio.Data[2] << 8 + (char*)radio.Data[3];
+      heart[packetnum] = (char*)radio.Data[4] << 8 + (char*)radio.Data[5];
 	  respdisp = 0;
 	  heartdisp = 0;
 	  for(i = 0; i < 15; ++i){
 		respdisp += res[i];
 		heartdisp += heart[i];
 	  }
-	  convertedtemp = 10*BETA/log(330*temp/((3375-3.3*temp)*RINFINITY));
+	  convertedtemp = 10*BETA/log(330*temp/((3375-3.3*temp)*RINFINITY)) + 1;
 	  temp0disp = convertedtemp/10;
 	  temp1disp = convertedtemp%10;
       if(respdisp < 10 || respdisp > 55){
@@ -144,12 +139,6 @@ void loop(){
   }
   i = (i + 1)%15;
   delay(500);
-}
-
-void copy(char * to, char * from, byte beg, byte num){
-  for(byte i = 0; i < num; ++i){
-    to[i+beg] = from[i];
-  }
 }
 
 void waitforinput(){
@@ -256,28 +245,22 @@ void make_number(byte x, byte y, byte num){
   //num = 0,2,3,5,6,7,8,9
   if(num == 0 || num == 2 || num == 3 || num > 4){
     colorblock(x+2,y,2,6);
-  }
-  //num = 2,3,4,5,6,8,9
+  }//num = 2,3,4,5,6,8,9
   if(num > 1 && num != 7){
     colorblock(x+2,y+11,2,6);
-  }
-  //num = 0,2,3,5,6,8
+  }//num = 0,2,3,5,6,8
   if(num == 0 || (num > 1 && num < 7 && num != 4) || num == 8){
       colorblock(x+2,y+21,2,6);
-  }
-  //num = 0,4,5,6,8,9
+  }//num = 0,4,5,6,8,9
   if(num == 0 || (num > 3 && num < 7) || num > 7){
     colorblock(x,y+2,8,2);
-  }
-  //num = 0,2,6,8
+  }//num = 0,2,6,8
   if(num % 2 == 0 && num != 4){
       colorblock(x,y+13,8,2);
-  }
-  //num = 0,1,2,3,4,7,8,9
+  }//num = 0,1,2,3,4,7,8,9
   if(num < 5 || num > 6){
     colorblock(x+9,y+2,8,2);
-  }
-  //num = 0,1,3,4,5,6,7,8,9
+  }//num = 0,1,3,4,5,6,7,8,9
   if(num != 2){
     colorblock(x+9,y+13,8,2);
   }
