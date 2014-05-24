@@ -4,6 +4,8 @@
 #include <string.h>
 #include <limits.h>
 
+void encodeFile(FILE * readf, FILE * writef, char * pass);
+
 int main(int argc, char **argv){
 	bool encrypt;
 	FILE * readf, * writef;
@@ -43,6 +45,7 @@ int main(int argc, char **argv){
 		}
 		
 		//code to come
+		encodeFile(readf,writef,password);
 		
 		fclose(readf);
 		fclose(writef);
@@ -51,6 +54,16 @@ int main(int argc, char **argv){
 	exit(EXIT_SUCCESS);
 }
 
-bool readFile(FILE * readf, char * data){
-	
+void encodeFile(FILE * readf, FILE * writef, char * pass){
+	int i,passsum = 0,read = 0,length = strlen(pass),toput;
+	for(i = 0; i < length; ++i){
+		passsum += pass[i];
+	}
+	i = 0;
+	while(read != EOF){
+		read = fgetc(readf);
+		toput = read*passsum - pass[i%length] + i;
+		fputc(toput,writef);
+		i++;
+	}
 }
