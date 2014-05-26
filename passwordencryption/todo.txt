@@ -1,3 +1,4 @@
 1)way to enter in password without it showing on the screen?
 2)comment code. :P
 3)fix strtok for when an extension is not entered
+4)add a log file of what was written?

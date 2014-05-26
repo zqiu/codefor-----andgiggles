@@ -23,7 +23,7 @@ int main(int argc, char **argv){
 			printf("error: first argument is not a text file\n");
 			exit(EXIT_FAILURE);
 		}
-		readf = fopen(argv[1],"r");
+		readf = fopen(argv[1],"rb");
 		if(!readf){
 			printf("error: file does not exist\n");
 			exit(EXIT_FAILURE);
@@ -37,7 +37,7 @@ int main(int argc, char **argv){
 			}
 		}
 		fclose(writef);
-		writef = fopen(filename,"w");
+		writef = fopen(filename,"wb");
 		printf("password?\n");
 		scanf("%s",password);
 		if(strlen(password) > 20 || strlen(password) < 1 ){
@@ -56,7 +56,7 @@ int main(int argc, char **argv){
 			printf("error: first argument is not a q file\n");
 			exit(EXIT_FAILURE);
 		}
-		readf = fopen(argv[1],"r");
+		readf = fopen(argv[1],"rb");
 		if(!readf){
 			printf("error: file does not exist\n");
 			exit(EXIT_FAILURE);
@@ -98,7 +98,7 @@ void encodeFile(FILE * readf, FILE * writef, char * pass){
 		if(read == -1){
 			break;
 		}
-		toput = read - pass[i%length] + i%passsum + 128;
+		toput = (read - pass[i%length] + i%passsum + 256)%256;
 		fputc(toput,writef);
 		i++;
 	}
@@ -115,7 +115,7 @@ void decodeFile(FILE * readf, FILE * writef, char * pass){
 		if(read == -1){
 			break;
 		}
-		toput = read + (pass[i % length] - i%passsum + 128);
+		toput = (read + (pass[i % length] - i%passsum%256 + 256))%256;
 		fputc(toput,writef);
 		i++;
 	}
