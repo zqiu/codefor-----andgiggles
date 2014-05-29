@@ -18,77 +18,51 @@ int main(int argc, char **argv){
 	encrypt = (atoi(argv[2])==0?1:0);
 	strcpy(tmp,argv[1]);
 	filename = strtok(tmp,".");
-	if(encrypt){
-		if(strcmp(strtok(NULL,"."),"txt")){
-			printf("error: first argument is not a text file\n");
-			exit(EXIT_FAILURE);
-		}
-		readf = fopen(argv[1],"rb");
-		if(!readf){
-			printf("error: file does not exist\n");
-			exit(EXIT_FAILURE);
-		}
-		writef = fopen(strcat(filename,".q"),"r");
-		if(writef){
-			printf("file %s already exist. continue y? \n",filename);
-			scanf("%s",data);
-			if(strcmp(data,"y")){
-				exit(EXIT_SUCCESS);
-			}
-		}
-		fclose(writef);
-		writef = fopen(filename,"wb");
-		printf("password?\n");
-		scanf("%s",password);
-		if(strlen(password) > 20 || strlen(password) < 1 ){
-			printf("error: password must be less than 20 char and not be empty\n");
-			exit(EXIT_FAILURE);
-		}
-		
-		//code to come
-		encodeFile(readf,writef,password);
-		
-		fclose(readf);
-		fclose(writef);
-		printf("thank you for using this encryption software\n");
-	}else{
+	if(!encrypt){
 		if(strcmp(strtok(NULL,"."),"q")){
 			printf("error: first argument is not a q file\n");
 			exit(EXIT_FAILURE);
 		}
-		readf = fopen(argv[1],"rb");
-		if(!readf){
-			printf("error: file does not exist\n");
-			exit(EXIT_FAILURE);
-		}
-		writef = fopen(strcat(filename,".dec"),"r");
-		if(writef){
-			printf("file %s already exist. continue y? \n",filename);
-			scanf("%s",data);
-			if(strcmp(data,"y")){
-				exit(EXIT_SUCCESS);
-			}
-		}
-		fclose(writef);
-		writef = fopen(filename,"w");
-		printf("password?\n");
-		scanf("%s",password);
-		if(strlen(password) > 20 || strlen(password) < 1 ){
-			printf("error: password must be less than 20 char and not be empty\n");
-			exit(EXIT_FAILURE);
-		}
-		
-		//code to come
-		decodeFile(readf,writef,password);
-		
-		fclose(readf);
-		fclose(writef);
 	}
+	readf = fopen(argv[1],"rb");
+	if(!readf){
+		printf("error: file does not exist\n");
+		exit(EXIT_FAILURE);
+	}
+	if(encrypt){
+		writef = fopen(strcat(filename,".q"),"r");
+	}else{
+		writef = fopen(strcat(filename,".dec"),"r");
+	}
+	if(writef){
+		printf("file %s already exist. continue y? \n",filename);
+		scanf("%s",data);
+		if(strcmp(data,"y")){
+			exit(EXIT_SUCCESS);
+		}
+	}
+	fclose(writef);
+	writef = fopen(filename,"wb");
+	printf("password?\n");
+	scanf("%s",password);
+	if(strlen(password) > 20 || strlen(password) < 1 ){
+		printf("error: password must be less than 20 char and not be empty\n");
+		exit(EXIT_FAILURE);
+	}		
+	if(encrypt){
+		encodeFile(readf,writef,password);
+	}else{
+		decodeFile(readf,writef,password);		
+	}
+	fclose(readf);
+	fclose(writef);
 	exit(EXIT_SUCCESS);
 }
 
 void encodeFile(FILE * readf, FILE * writef, char * pass){
 	int i,passsum = 0,read = 0,length = strlen(pass),toput;
+	char buf[10];
+	FILE * log = fopen("log.txt","w");
 	for(i = 0; i < length; ++i){
 		passsum += pass[i];
 	}
@@ -98,14 +72,19 @@ void encodeFile(FILE * readf, FILE * writef, char * pass){
 		if(read == -1){
 			break;
 		}
+		sprintf(buf,"%d\n",read);
+		fwrite(buf, sizeof(char), strlen(buf), log);
 		toput = (read - pass[i%length] + i%passsum + 256)%256;
 		fputc(toput,writef);
 		i++;
 	}
+	fclose(log);
 }
 
 void decodeFile(FILE * readf, FILE * writef, char * pass){
 	int i,passsum = 0,read = 0,length = strlen(pass),toput;
+	char buf[10];
+	FILE * log = fopen("log.txt","w");
 	for(i = 0; i < length; ++i){
 		passsum += pass[i];
 	}
@@ -115,8 +94,11 @@ void decodeFile(FILE * readf, FILE * writef, char * pass){
 		if(read == -1){
 			break;
 		}
+		sprintf(buf,"%d\n",read);
+		fwrite(buf, sizeof(char), strlen(buf), log);
 		toput = (read + (pass[i % length] - i%passsum%256 + 256))%256;
 		fputc(toput,writef);
 		i++;
 	}
+	fclose(log);
 }
