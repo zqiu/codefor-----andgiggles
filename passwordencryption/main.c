@@ -4,14 +4,14 @@
 #include <string.h>
 #include <limits.h>
 
-void encodeFile(FILE * readf, FILE * writef, char * pass);
-void decodeFile(FILE * readf, FILE * writef, char * pass);
+void encodeFile(FILE * readf, FILE * writef, char * pass, char logging);
+void decodeFile(FILE * readf, FILE * writef, char * pass, char logging);
 
 int main(int argc, char **argv){
 	bool encrypt;
 	FILE * readf, * writef;
 	char *filename, tmp[20], password[20], data[20];
-	if(argc != 3){
+	if(argc < 3){
 		printf("error: need 2 arguments. Name of file and 0 for encryption\n");
 		exit(EXIT_FAILURE);
 	}
@@ -50,19 +50,22 @@ int main(int argc, char **argv){
 		exit(EXIT_FAILURE);
 	}		
 	if(encrypt){
-		encodeFile(readf,writef,password);
+		encodeFile(readf,writef,password,(argc == 4)?(char)!strcmp("--debug",argv[3]):0);
 	}else{
-		decodeFile(readf,writef,password);		
+		decodeFile(readf,writef,password,(argc == 4)?(char)!strcmp("--debug",argv[3]):0);		
 	}
 	fclose(readf);
 	fclose(writef);
 	exit(EXIT_SUCCESS);
 }
 
-void encodeFile(FILE * readf, FILE * writef, char * pass){
+void encodeFile(FILE * readf, FILE * writef, char * pass,char logging){
 	int i,passsum = 0,read = 0,length = strlen(pass),toput;
 	char buf[10];
-	FILE * log = fopen("log.txt","w");
+	FILE * log = NULL;
+	if(logging){
+		log = fopen("log.txt","w");
+	}
 	for(i = 0; i < length; ++i){
 		passsum += pass[i];
 	}
@@ -73,7 +76,9 @@ void encodeFile(FILE * readf, FILE * writef, char * pass){
 			break;
 		}
 		sprintf(buf,"%d\n",read);
-		fwrite(buf, sizeof(char), strlen(buf), log);
+		if(log){
+			fwrite(buf, sizeof(char), strlen(buf), log);
+		}
 		toput = (read - pass[i%length] + i%passsum + 256)%256;
 		fputc(toput,writef);
 		i++;
@@ -81,10 +86,13 @@ void encodeFile(FILE * readf, FILE * writef, char * pass){
 	fclose(log);
 }
 
-void decodeFile(FILE * readf, FILE * writef, char * pass){
+void decodeFile(FILE * readf, FILE * writef, char * pass,char logging){
 	int i,passsum = 0,read = 0,length = strlen(pass),toput;
 	char buf[10];
-	FILE * log = fopen("log.txt","w");
+	FILE * log = NULL;
+	if(logging){
+		log = fopen("log.txt","w");
+	}
 	for(i = 0; i < length; ++i){
 		passsum += pass[i];
 	}
@@ -95,7 +103,9 @@ void decodeFile(FILE * readf, FILE * writef, char * pass){
 			break;
 		}
 		sprintf(buf,"%d\n",read);
-		fwrite(buf, sizeof(char), strlen(buf), log);
+		if(log){
+			fwrite(buf, sizeof(char), strlen(buf), log);
+		}
 		toput = (read + (pass[i % length] - i%passsum%256 + 256))%256;
 		fputc(toput,writef);
 		i++;
