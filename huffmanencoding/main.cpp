@@ -61,13 +61,13 @@ int main(int argc, char *argv[]){
 }
 
 void huffmanencode(std::istream &inFile,std::ostream &outFile){
-	int absmax = 0,max=0,i;
-	char temp;
+	int absmax = 0,max = 0,numwritten = 0,i,j;
+	char temp,towrite = 0;
 	std::map<char,int> charmap;
 	std::map<char,int>::iterator it;
 	std::map<char,std::string> hash;
 	std::vector<std::pair<char,float> > find;
-	std::string str;
+	std::string str,encoded;
 	node * root, *tmp;
 	
 	while(getline(inFile,str)){
@@ -98,7 +98,38 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 	inFile.clear();
 	inFile.seekg(0,inFile.beg);
 	root = maketree(find);
+	gethash(hash,root,"");
 	
+	while(getline(inFile,str)){
+		for(i = 0; i < str.size(); ++i){
+			encoded = hash.find(str[i])->second;
+			for(j = 0; j < encoded.size(); ++j){
+				numwritten = (numwritten + 1)%7;
+				towrite *= 2;
+				towrite += (encoded[j]=='0')?0:1;
+				if(!numwritten){
+					outFile << towrite;
+					towrite = 0;
+				}
+			}
+		}
+		encoded = hash.find('\n')->second;
+		for(j = 0; j < encoded.size(); ++j){
+			numwritten = (numwritten + 1)%7;
+			towrite *= 2;
+			towrite += (encoded[j]=='0')?0:1;
+			if(!numwritten){
+				outFile << towrite;
+				towrite = 0;
+			}
+		}
+	}
+	while(numwritten){
+		temp *= 2;
+		temp += 1;
+		numwritten = (numwritten + 1)%7;
+	}
+	outFile << temp;
 }
 
 node * maketree(std::vector<std::pair<char,float> > & data){
@@ -122,7 +153,7 @@ node * maketree(std::vector<std::pair<char,float> > & data){
 }
 
 void freetree(node * root){
-	if(!root->left && !root->right){
+	if(!(root->left) && !(root->right)){
 		delete root;
 	}else{
 		freetree(root->left);
@@ -133,5 +164,10 @@ void freetree(node * root){
 }
 
 void gethash(std::map<char, std::string> & hashmap,node* root,std::string buffer){
-	
+	if(!(root->left) && !(root->right)){
+		hashmap.insert(std::pair<char, std::string>(root->val,buffer));
+	}else{
+		gethash(hashmap,root->left,buffer+"0");
+		gethash(hashmap,root->right,buffer+"1");
+	}
 }
