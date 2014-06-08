@@ -6,6 +6,7 @@
 #include <utility>
 #include <string.h>
 #include <queue>
+#include <stdlib.h>
 
 class node;
 class mycomparison;
@@ -55,7 +56,7 @@ int main(int argc, char *argv[]){
 		strcpy(out,argv[1]);
 		strcat(out,".dec");
 		std::ofstream outFile(out);
-//		huffmandecode(inFile,outFile);
+		//huffmandecode(inFile,outFile);
 	}
 	return 0;
 }
@@ -130,6 +131,55 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		numwritten = (numwritten + 1)%7;
 	}
 	outFile << temp;
+	freetree(root);
+}
+
+void huffmandecode(std::istream &inFile,std::ostream &outFile){
+	bool exit = false;
+	int i,j;
+	std::vector<std::pair<char,float> > data;
+	std::string str;
+	char temp, *buffer, *copy;
+	node * root, *current;
+	
+	while(getline(inFile,str)){
+		buffer = new char[str.length()+1];
+		strcpy(buffer,str.c_str());
+		copy = strtok(buffer,"\x01");
+		while(copy != NULL){
+			if(copy[0] == (char)0){
+				exit = true;
+				break;
+			}
+			if(strlen(copy) == 1){
+				temp = copy[0];
+			}else{
+				data.push_back(std::pair<char,float>(temp,strtod(copy,NULL)));
+			}
+			copy = strtok(NULL,"\x01");
+		}
+		if(exit){
+			break;
+		}
+		temp = '\n';
+		delete[] buffer;
+	}
+	root = maketree(data);
+	for(i = 0; i < strlen(copy); ++i){
+		for(j = 6; j >= 0; --j){
+			if((str[i] >> j)%2){
+				current = current->right;
+			}else{
+				current = current->left;
+			}
+			if(current->right == NULL && current->left == NULL){
+				outFile << (current->val);
+				current = root;
+			}
+		}
+	}
+	delete[] buffer;
+	freetree(root);
 }
 
 node * maketree(std::vector<std::pair<char,float> > & data){
