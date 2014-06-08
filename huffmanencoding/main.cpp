@@ -15,6 +15,8 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile);
 node * maketree(std::vector<std::pair<char,float> > & data);
 void freetree(node * root);
 void gethash(std::map<char, std::string> & hashmap,node* root,std::string buffer);
+void printtree(node *root,int index);
+void printhash(std::map<char, std::string> & hashmap);
 
 class node{
 	public:
@@ -30,7 +32,7 @@ class node{
 class mycomparison{
 public:
   bool operator() (const node* lhs, const node* rhs) const{
-    return (lhs->priority < rhs->priority);
+    return (lhs->priority > rhs->priority);
   }
 };
 
@@ -56,7 +58,7 @@ int main(int argc, char *argv[]){
 		strcpy(out,argv[1]);
 		strcat(out,".dec");
 		std::ofstream outFile(out);
-		//huffmandecode(inFile,outFile);
+		huffmandecode(inFile,outFile);
 	}
 	return 0;
 }
@@ -92,14 +94,16 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 	std::cout << "characters:\n";
 	for(i = 0; i < find.size(); ++i){
 		std::cout << find[i].first;
-		outFile << find[i].first << (char)1 << std::setprecision(4) << find[i].second << (char)1;
+		outFile << find[i].first << (char)1 << std::setprecision(3) << find[i].second << (char)1;
 	}
 	outFile << (char)0;
 	std::cout << "\nend\n";
 	inFile.clear();
 	inFile.seekg(0,inFile.beg);
 	root = maketree(find);
+	printtree(root,0);
 	gethash(hash,root,"");
+	printhash(hash);
 	
 	while(getline(inFile,str)){
 		for(i = 0; i < str.size(); ++i){
@@ -165,12 +169,13 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 		delete[] buffer;
 	}
 	root = maketree(data);
+	printtree(root,0);
 	for(i = 0; i < strlen(copy); ++i){
 		for(j = 6; j >= 0; --j){
 			if((str[i] >> j)%2){
-				current = current->right;
-			}else{
 				current = current->left;
+			}else{
+				current = current->right;
 			}
 			if(current->right == NULL && current->left == NULL){
 				outFile << (current->val);
@@ -219,5 +224,30 @@ void gethash(std::map<char, std::string> & hashmap,node* root,std::string buffer
 	}else{
 		gethash(hashmap,root->left,buffer+"0");
 		gethash(hashmap,root->right,buffer+"1");
+	}
+}
+//debugging information
+void printtree(node *root,int index){
+	int i;
+	if(root != NULL){
+		for(i = 0; i < index; ++i){
+			std::cout << " ";
+		}
+		std::cout << "val: ";
+		if(root-> val == '\n' || root->val == (char)0){
+			std::cout << "NULL ";
+		}else{
+			std::cout << root->val;
+		}
+		std::cout << "priority: " << root->priority << "\n";
+		printtree(root->left,index+1);
+		printtree(root->right,index+1);
+	}
+}
+
+void printhash(std::map<char, std::string> & hashmap){
+	std::map<char, std::string>::iterator itr;
+	for(itr = hashmap.begin(); itr != hashmap.end(); ++itr){
+		std::cout << itr->first << "=>" << itr->second << "\n";
 	}
 }
