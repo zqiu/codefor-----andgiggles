@@ -12,7 +12,7 @@ class node;
 class mycomparison;
 void huffmanencode(std::istream &inFile,std::ostream &outFile);
 void huffmandecode(std::istream &inFile,std::ostream &outFile);
-node * maketree(std::vector<std::pair<char,float> > & data);
+node * maketree(std::vector<std::pair<char,int> > & data);
 void freetree(node * root);
 void gethash(std::map<char, std::string> & hashmap,node* root,std::string buffer);
 void printtree(node *root,int index);
@@ -20,12 +20,12 @@ void printhash(std::map<char, std::string> & hashmap);
 
 class node{
 	public:
-		node(char val_, float priority_):val(val_),priority(priority_){
+		node(char val_, int priority_):val(val_),priority(priority_){
 			left = NULL;
 			right = NULL;
 		}
 		char val;
-		float priority;
+		int priority;
 		node * left , * right;
 };
 
@@ -64,12 +64,12 @@ int main(int argc, char *argv[]){
 }
 
 void huffmanencode(std::istream &inFile,std::ostream &outFile){
-	int absmax = 0,max = 0,numwritten = 0,i,j;
+	int max = 0,numwritten = 0,i,j;
 	char temp,towrite = 0;
 	std::map<char,int> charmap;
 	std::map<char,int>::iterator it;
 	std::map<char,std::string> hash;
-	std::vector<std::pair<char,float> > find;
+	std::vector<std::pair<char,int> > find;
 	std::string str,encoded;
 	node * root, *tmp;
 	
@@ -84,17 +84,16 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 			if(it->second > max){
 				max = it->second;
 				temp = it->first;
-				absmax = (max > absmax)?max:absmax;
 			}
 		}
-		find.push_back(std::pair<char,float>(temp,((float)max)/absmax));
+		find.push_back(std::pair<char,int>(temp,max));
 		max = 0;
 		charmap.erase(temp);
 	}
 	std::cout << "characters:\n";
 	for(i = 0; i < find.size(); ++i){
 		std::cout << find[i].first;
-		outFile << find[i].first << (char)1 << std::setprecision(3) << find[i].second << (char)1;
+		outFile << find[i].first << (char)1 << find[i].second << (char)1;
 	}
 	outFile << (char)0;
 	std::cout << "\nend\n";
@@ -139,9 +138,9 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 }
 
 void huffmandecode(std::istream &inFile,std::ostream &outFile){
-	bool exit = false;
+	bool exit = false,number = false;
 	int i,j;
-	std::vector<std::pair<char,float> > data;
+	std::vector<std::pair<char,int> > data;
 	std::string str;
 	char temp, *buffer, *copy;
 	node * root, *current;
@@ -155,10 +154,12 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 				exit = true;
 				break;
 			}
-			if(strlen(copy) == 1){
+			if(!number){
 				temp = copy[0];
+				number = true;
 			}else{
-				data.push_back(std::pair<char,float>(temp,strtod(copy,NULL)));
+				data.push_back(std::pair<char,int>(temp,atoi(copy)));
+				number = false;
 			}
 			copy = strtok(NULL,"\x01");
 		}
@@ -166,6 +167,7 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 			break;
 		}
 		temp = '\n';
+		number = true;
 		delete[] buffer;
 	}
 	root = maketree(data);
@@ -187,7 +189,7 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 	freetree(root);
 }
 
-node * maketree(std::vector<std::pair<char,float> > & data){
+node * maketree(std::vector<std::pair<char,int> > & data){
 	node *root, *left, *right;
 	node_queue queue;
 	int i;
