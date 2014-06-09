@@ -55,6 +55,8 @@ int main(int argc, char *argv[]){
 		std::ofstream outFile(out);
 		huffmanencode(inFile,outFile);
 	}else if(!strcmp(argv[2],"--decode")){
+		inFile.close();
+		inFile.open(argv[1],std::ifstream::binary);
 		strcpy(out,argv[1]);
 		strcat(out,".dec");
 		std::ofstream outFile(out);
@@ -95,7 +97,7 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		std::cout << find[i].first;
 		outFile << find[i].first << (char)1 << find[i].second << (char)1;
 	}
-	outFile << (char)0;
+	outFile << (char)2;
 	std::cout << "\nend\n";
 	inFile.clear();
 	inFile.seekg(0,inFile.beg);
@@ -130,10 +132,10 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 	}
 	while(numwritten){
 		temp *= 2;
-		temp += 1;
 		numwritten = (numwritten + 1)%7;
 	}
 	outFile << temp;
+	outFile << (char)0;
 	freetree(root);
 }
 
@@ -150,7 +152,8 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 		strcpy(buffer,str.c_str());
 		copy = strtok(buffer,"\x01");
 		while(copy != NULL){
-			if(copy[0] == (char)0){
+			if(copy[0] == (char)2){
+				copy++;
 				exit = true;
 				break;
 			}
@@ -171,15 +174,17 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 		delete[] buffer;
 	}
 	root = maketree(data);
+	current = root;
 	printtree(root,0);
+	std::cout << strlen(copy);
 	for(i = 0; i < strlen(copy); ++i){
 		for(j = 6; j >= 0; --j){
-			if((str[i] >> j)%2){
-				current = current->left;
-			}else{
+			if((copy[i] >> j)%2){
 				current = current->right;
+			}else{
+				current = current->left;
 			}
-			if(current->right == NULL && current->left == NULL){
+			if(current->val != (char)0){
 				outFile << (current->val);
 				current = root;
 			}
