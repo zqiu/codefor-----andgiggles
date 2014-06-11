@@ -95,9 +95,9 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 	std::cout << "characters:\n";
 	for(i = 0; i < find.size(); ++i){
 		std::cout << find[i].first;
-		outFile << find[i].first << (char)1 << find[i].second << (char)1;
+		outFile << find[i].first << find[i].second << (char)1;
 	}
-	outFile << (char)2;
+	outFile << (char)0;
 	std::cout << "\nend\n";
 	inFile.clear();
 	inFile.seekg(0,inFile.beg);
@@ -135,62 +135,46 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		numwritten = (numwritten + 1)%7;
 	}
 	outFile << temp;
-	outFile << (char)0;
 	freetree(root);
 }
 
 void huffmandecode(std::istream &inFile,std::ostream &outFile){
-	bool exit = false,number = false;
-	int i,j;
+	int i,j,temp;
 	std::vector<std::pair<char,int> > data;
 	std::string str;
-	char temp, *buffer, *copy;
+	char *buffer, *copy;
 	node * root, *current;
 	
-	while(getline(inFile,str)){
-		buffer = new char[str.length()+1];
-		strcpy(buffer,str.c_str());
-		copy = strtok(buffer,"\x01");
-		while(copy != NULL){
-			if(copy[0] == (char)2){
-				copy++;
-				exit = true;
-				break;
-			}
-			if(!number){
-				temp = copy[0];
-				number = true;
-			}else{
-				data.push_back(std::pair<char,int>(temp,atoi(copy)));
-				number = false;
-			}
-			copy = strtok(NULL,"\x01");
-		}
-		if(exit){
-			break;
-		}
-		temp = '\n';
-		number = true;
-		delete[] buffer;
+	getline(inFile,str,'\x00');
+	buffer = new char[str.length()+1];
+	strcpy(buffer,str.c_str());
+	copy = strtok(buffer,"\x01");
+	while(copy != NULL){
+		temp = copy[0];
+		copy++;
+		data.push_back(std::pair<char,int>(temp,atoi(copy)));
+		copy = strtok(NULL,"\x01");
 	}
+	delete[] buffer;	
 	root = maketree(data);
 	current = root;
 	printtree(root,0);
-	std::cout << strlen(copy);
-	for(i = 0; i < strlen(copy); ++i){
+	temp = inFile.get();
+	while(temp != std::char_traits<char>::eof()){
 		for(j = 6; j >= 0; --j){
-			if((copy[i] >> j)%2){
+			if((temp >> j)%2){
 				current = current->right;
 			}else{
 				current = current->left;
 			}
 			if(current->val != (char)0){
+//				std::cout << "wrote" << current->val << "\n";
 				outFile << (current->val);
 				current = root;
 			}
 		}
+		temp = inFile.get();
 	}
-	delete[] buffer;
 	freetree(root);
 }
 
