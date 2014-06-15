@@ -52,7 +52,7 @@ int main(int argc, char *argv[]){
 	if(argc == 2){
 		strcpy(out,argv[1]);
 		strcat(out,".huf");
-		std::ofstream outFile(out);
+		std::ofstream outFile(out,std::ifstream::binary);
 		huffmanencode(inFile,outFile);
 	}else if(!strcmp(argv[2],"--decode")){
 		inFile.close();
@@ -92,19 +92,19 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		max = 0;
 		charmap.erase(temp);
 	}
-	std::cout << "characters:\n";
+	//std::cout << "characters:\n";
 	for(i = 0; i < find.size(); ++i){
-		std::cout << find[i].first;
+		//std::cout << find[i].first;
 		outFile << find[i].first << find[i].second << (char)1;
 	}
 	outFile << (char)0;
-	std::cout << "\nend\n";
+	//std::cout << "\nend\n";
 	inFile.clear();
 	inFile.seekg(0,inFile.beg);
 	root = maketree(find);
-	printtree(root,0);
+	//printtree(root,0);
 	gethash(hash,root,"");
-	printhash(hash);
+	//printhash(hash);
 	
 	while(getline(inFile,str)){
 		for(i = 0; i < str.size(); ++i){
@@ -115,6 +115,7 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 				towrite += (encoded[j]=='0')?0:1;
 				if(!numwritten){
 					outFile << towrite;
+					std::cout << (int)towrite << "\n";
 					towrite = 0;
 				}
 			}
@@ -126,6 +127,7 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 			towrite += (encoded[j]=='0')?0:1;
 			if(!numwritten){
 				outFile << towrite;
+				std::cout << (int)towrite << "\n";
 				towrite = 0;
 			}
 		}
@@ -135,6 +137,7 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		numwritten = (numwritten + 1)%7;
 	}
 	outFile << temp;
+	std::cout << (int)towrite << "\n";
 	freetree(root);
 }
 
@@ -144,6 +147,7 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 	std::string str;
 	char *buffer, *copy;
 	node * root, *current;
+	std::map<char,std::string> hash;
 	
 	getline(inFile,str,'\x00');
 	buffer = new char[str.length()+1];
@@ -158,9 +162,12 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 	delete[] buffer;	
 	root = maketree(data);
 	current = root;
-	printtree(root,0);
+	//printtree(root,0);
+	gethash(hash,root,"");
+	//printhash(hash);
 	temp = inFile.get();
 	while(temp != std::char_traits<char>::eof()){
+		std::cout << (int)temp<< "\n";
 		for(j = 6; j >= 0; --j){
 			if((temp >> j)%2){
 				current = current->right;
