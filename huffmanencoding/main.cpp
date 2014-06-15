@@ -8,10 +8,16 @@
 #include <queue>
 #include <stdlib.h>
 
+#define DECODE	0
+#define TREE	1
+#define HASH	2
+#define RAW		3
+#define ALPHA	4
+
 class node;
 class mycomparison;
-void huffmanencode(std::istream &inFile,std::ostream &outFile);
-void huffmandecode(std::istream &inFile,std::ostream &outFile);
+void huffmanencode(std::istream &inFile,std::ostream &outFile,char *flags);
+void huffmandecode(std::istream &inFile,std::ostream &outFile,char * flags);
 node * maketree(std::vector<std::pair<char,int> > & data);
 void freetree(node * root);
 void gethash(std::map<char, std::string> & hashmap,node* root,std::string buffer);
@@ -39,9 +45,16 @@ public:
 typedef std::priority_queue<node *,std::vector<node *>,mycomparison> node_queue;
 
 int main(int argc, char *argv[]){
-	char out[50],test;
-	if( argc != 2 && argc != 3){
-        std::cerr << "Usage: " << argv[ 0 ] << " text file" << std::endl;
+	char out[50],flags[5];
+	int i;
+	if( argc == 1){
+        std::cerr << "Usage: " << argv[ 0 ] << " + your text file\n\n";
+		std::cerr << "flags:\n";
+		std::cerr << "-decode / -d : Decodes a huffman file\n";
+		std::cerr << "-tree / -t : shows the tree\n";
+		std::cerr << "-hash / -h : outputs the hash used\n";
+		std::cerr << "-raw / -r : outputs the chars read/written\n";
+		std::cerr << "-alpha / -a : outputs the alphabet of the file\n";
         return 1;
     }
 	std::ifstream inFile(argv[1]);
@@ -49,23 +62,39 @@ int main(int argc, char *argv[]){
         std::cerr << "Cannot open " << argv[ 1 ] << std::endl;
         return 1;
     }
-	if(argc == 2){
+	for(i = 0; i < 5; ++i){
+		flags[i] = 0;
+	}
+	for(i = 1; i < argc; ++i){
+		if(!strcmp(argv[i],"-decode") || !strcmp(argv[i],"-d")){
+			flags[DECODE] = 1;
+		}else if(!strcmp(argv[i],"-tree") || !strcmp(argv[i],"-t")){
+			flags[TREE] = 1;
+		}else if(!strcmp(argv[i],"-hash") || !strcmp(argv[i],"-h")){
+			flags[HASH] = 1;
+		}else if(!strcmp(argv[i],"-raw") || !strcmp(argv[i],"-r")){
+			flags[RAW] = 1;
+		}else if(!strcmp(argv[i],"-alpha") || !strcmp(argv[i],"-a")){
+			flags[ALPHA] = 1;
+		}
+	}
+	if(!flags[DECODE]){
 		strcpy(out,argv[1]);
 		strcat(out,".huf");
 		std::ofstream outFile(out,std::ifstream::binary);
-		huffmanencode(inFile,outFile);
-	}else if(!strcmp(argv[2],"--decode")){
+		huffmanencode(inFile,outFile,flags);
+	}else{
 		inFile.close();
 		inFile.open(argv[1],std::ifstream::binary);
 		strcpy(out,argv[1]);
 		strcat(out,".dec");
 		std::ofstream outFile(out);
-		huffmandecode(inFile,outFile);
+		huffmandecode(inFile,outFile,flags);
 	}
 	return 0;
 }
 
-void huffmanencode(std::istream &inFile,std::ostream &outFile){
+void huffmanencode(std::istream &inFile,std::ostream &outFile, char * flags){
 	int max = 0,numwritten = 0,i,j;
 	char temp,towrite = 0;
 	std::map<char,int> charmap;
@@ -92,20 +121,22 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		max = 0;
 		charmap.erase(temp);
 	}
-	//std::cout << "characters:\n";
+	if(flags[ALPHA]){std::cout << "characters:\n";}
 	for(i = 0; i < find.size(); ++i){
-		//std::cout << find[i].first;
+		if(flags[ALPHA]){std::cout << find[i].first;}
 		outFile << find[i].first << find[i].second << (char)1;
 	}
 	outFile << (char)0;
-	//std::cout << "\nend\n";
+	if(flags[ALPHA]){std::cout << "\nend\n";}
 	inFile.clear();
 	inFile.seekg(0,inFile.beg);
 	root = maketree(find);
-	//printtree(root,0);
+	if(flags[TREE]){std::cout << "Tree:\n";
+	printtree(root,0);}
 	gethash(hash,root,"");
-	//printhash(hash);
+	if(flags[HASH]){printhash(hash);}
 	
+	if(flags[RAW]){std::cout << "Raw values\n";}
 	while(getline(inFile,str)){
 		for(i = 0; i < str.size(); ++i){
 			encoded = hash.find(str[i])->second;
@@ -115,7 +146,7 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 				towrite += (encoded[j]=='0')?0:1;
 				if(!numwritten){
 					outFile << towrite;
-					std::cout << (int)towrite << "\n";
+					if(flags[RAW]){std::cout << (int)towrite << "\n";}
 					towrite = 0;
 				}
 			}
@@ -127,7 +158,7 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 			towrite += (encoded[j]=='0')?0:1;
 			if(!numwritten){
 				outFile << towrite;
-				std::cout << (int)towrite << "\n";
+				if(flags[RAW]){std::cout << (int)towrite << "\n";}
 				towrite = 0;
 			}
 		}
@@ -137,11 +168,11 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile){
 		numwritten = (numwritten + 1)%7;
 	}
 	outFile << temp;
-	std::cout << (int)towrite << "\n";
+	if(flags[RAW]){std::cout << (int)towrite << "\n";}
 	freetree(root);
 }
 
-void huffmandecode(std::istream &inFile,std::ostream &outFile){
+void huffmandecode(std::istream &inFile,std::ostream &outFile, char * flags){
 	int i,j,temp;
 	std::vector<std::pair<char,int> > data;
 	std::string str;
@@ -153,21 +184,26 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 	buffer = new char[str.length()+1];
 	strcpy(buffer,str.c_str());
 	copy = strtok(buffer,"\x01");
+	if(flags[ALPHA]){std::cout << "characters:\n";}
 	while(copy != NULL){
 		temp = copy[0];
 		copy++;
 		data.push_back(std::pair<char,int>(temp,atoi(copy)));
 		copy = strtok(NULL,"\x01");
+		if(flags[ALPHA]){std::cout << (char)temp;}
 	}
-	delete[] buffer;	
+	if(flags[ALPHA]){std::cout << "\nend\n";}
+	delete[] buffer;
 	root = maketree(data);
 	current = root;
-	//printtree(root,0);
-	gethash(hash,root,"");
-	//printhash(hash);
+	if(flags[TREE]){std::cout << "Tree:\n";
+	printtree(root,0);}
+	if(flags[HASH]){gethash(hash,root,"");
+	printhash(hash);}
 	temp = inFile.get();
+	if(flags[RAW]){std::cout << "Raw values\n";}
 	while(temp != std::char_traits<char>::eof()){
-		std::cout << (int)temp<< "\n";
+		if(flags[RAW]){std::cout << (int)temp<< "\n";}
 		for(j = 6; j >= 0; --j){
 			if((temp >> j)%2){
 				current = current->right;
@@ -175,7 +211,6 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile){
 				current = current->left;
 			}
 			if(current->val != (char)0){
-//				std::cout << "wrote" << current->val << "\n";
 				outFile << (current->val);
 				current = root;
 			}
@@ -245,6 +280,7 @@ void printtree(node *root,int index){
 
 void printhash(std::map<char, std::string> & hashmap){
 	std::map<char, std::string>::iterator itr;
+	std::cout << "Hash:\n";
 	for(itr = hashmap.begin(); itr != hashmap.end(); ++itr){
 		std::cout << itr->first << "=>" << itr->second << "\n";
 	}
