@@ -13,6 +13,7 @@
 #define HASH	2
 #define RAW		3
 #define ALPHA	4
+#define NUMFLAG	5
 
 class node;
 class mycomparison;
@@ -45,7 +46,7 @@ public:
 typedef std::priority_queue<node *,std::vector<node *>,mycomparison> node_queue;
 
 int main(int argc, char *argv[]){
-	char out[50],flags[5];
+	char out[50],flags[NUMFLAG];
 	int i;
 	if( argc == 1){
         std::cerr << "Usage: " << argv[ 0 ] << " + your text file\n\n";
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]){
         std::cerr << "Cannot open " << argv[ 1 ] << std::endl;
         return 1;
     }
-	for(i = 0; i < 5; ++i){
+	for(i = 0; i < NUMFLAG; ++i){
 		flags[i] = 0;
 	}
 	for(i = 1; i < argc; ++i){
@@ -80,6 +81,7 @@ int main(int argc, char *argv[]){
 	}
 	if(!flags[DECODE]){
 		strcpy(out,argv[1]);
+		strtok(out,".");
 		strcat(out,".huf");
 		std::ofstream outFile(out,std::ifstream::binary);
 		huffmanencode(inFile,outFile,flags);
@@ -87,6 +89,7 @@ int main(int argc, char *argv[]){
 		inFile.close();
 		inFile.open(argv[1],std::ifstream::binary);
 		strcpy(out,argv[1]);
+		strtok(out,".");
 		strcat(out,".dec");
 		std::ofstream outFile(out);
 		huffmandecode(inFile,outFile,flags);
