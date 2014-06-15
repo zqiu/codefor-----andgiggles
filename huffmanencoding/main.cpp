@@ -167,19 +167,19 @@ void huffmanencode(std::istream &inFile,std::ostream &outFile, char * flags){
 		}
 	}
 	while(numwritten){
-		temp *= 2;
+		towrite *= 2;
 		numwritten = (numwritten + 1)%7;
 	}
-	outFile << temp;
+	outFile << towrite;
 	if(flags[RAW]){std::cout << (int)towrite << "\n";}
 	freetree(root);
 }
 
 void huffmandecode(std::istream &inFile,std::ostream &outFile, char * flags){
-	int i,j,temp;
+	int i,j,temp,numwritten = 0;
 	std::vector<std::pair<char,int> > data;
 	std::string str;
-	char *buffer, *copy;
+	char *buffer, *copy,exit=0;
 	node * root, *current;
 	std::map<char,std::string> hash;
 	
@@ -216,7 +216,15 @@ void huffmandecode(std::istream &inFile,std::ostream &outFile, char * flags){
 			if(current->val != (char)0){
 				outFile << (current->val);
 				current = root;
+				numwritten++;
+				if(numwritten == root->priority){
+					exit = 1;
+					break;
+				}
 			}
+		}
+		if(exit){
+			break;
 		}
 		temp = inFile.get();
 	}
