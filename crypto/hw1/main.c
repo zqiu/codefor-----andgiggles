@@ -27,19 +27,49 @@ char ffunction(char source, char * key);
 int main(int argc, char ** argv){
 	char key[2],plaintext[2],partialk1[2],partialk2[2];
 	char ciphertext[2],scratch[2],temp,itr;
-	if(argc != 5){
-		printf("error: need arg to represent first and last 4 bits of plain text\n");
-		printf("and to represent first and last 5 bits of key\n");
+	char decrypt = 0,j;
+	if(argc <= 2){
+		printf("error: need arg to represent 8 bits of plain text\n");
+		printf("and to represent 10 bits of key. -d to decrypt\n");
 		exit(EXIT_FAILURE);
 	}
-	plaintext[0] = (char)atoi(argv[1]);
-	plaintext[1] = (char)atoi(argv[2]);
-	key[0] = (char)atoi(argv[3]);
-	key[1] = (char)atoi(argv[4]);
+	if(argc == 4 && !strcmp(argv[3],"-d")){
+		decrypt = 1;
+	}
+	plaintext[0] = (char)0;
+	plaintext[1] = (char)0;
+	key[0] = (char)0;
+	key[1] = (char)0;
+	for(itr = 0; itr < 8; itr++){
+		if(itr < 4){
+			j = 0;
+		}else{
+			j = 1;
+		}
+		plaintext[j] = plaintext[j] << 1;
+		if(argv[1][itr] == '1'){
+			plaintext[j] += 1;
+		}
+	}
+	for(itr = 0; itr < 10; itr++){
+		if(itr < 5){
+			j = 0;
+		}else{
+			j = 1;
+		}
+		key[j] = key[j] << 1;
+		if(argv[2][itr] == '1'){
+			key[j] += 1;
+		}
+	}
+#ifdef VERBOSE
+	printf("read in: plaintext %d,%d key %d,%d\n",plaintext[0],plaintext[1],key[0],key[1]);
+#endif
+	
 	getkeys(key,partialk1,partialk2);
 	permutation(plaintext,scratch,IPERM,8,8);
 	
-	temp = ffunction(scratch[1],partialk1);
+	temp = ffunction(scratch[1],(!decrypt)?partialk1:partialk2);
 	temp = temp ^ scratch[0];
 	scratch[0] = scratch[1];
 	scratch[1] = temp;
@@ -47,14 +77,14 @@ int main(int argc, char ** argv){
 	printf("result after XOR:%d,%d\n",scratch[0],scratch[1]);
 #endif
 	
-	temp = ffunction(scratch[1],partialk2);
+	temp = ffunction(scratch[1],(!decrypt)?partialk2:partialk1);
 	temp = scratch[0] = temp ^ scratch[0];
 #ifdef VERBOSE
 	printf("result after XOR:%d,%d\n",scratch[0],scratch[1]);
 #endif
 	
 	permutation(scratch,ciphertext,IIPERM,8,8);
-	printf("your cipher is ");
+	printf((!decrypt)?"your cipher is ":"your plain text is ");
 	for(itr = 0; itr < 8; ++itr){
 		if(itr < 4){
 			printf("%d",(ciphertext[0] >> (3-itr))%2);
