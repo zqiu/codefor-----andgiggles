@@ -17,7 +17,7 @@
 
 void* client_thread(void * arg);
 void sendmessage(char * message, int sock);
-void interpret_buffer(char * buf, int sock);
+void interpret_buffer(char * buf, int sock, int n);
 
 int main(int argc, char ** argv){
   int port,sock,currentconnections = 0,sockdescriptors, * temp, rc;
@@ -99,11 +99,11 @@ void* client_thread(void * arg){
       printf( "CHILD %d: Rcvd 0 from recv(); closing socket\n",
 	      getpid() );
     } else {
-      buffer[n] = '\0';  /* assuming text.... */
+      buffer[n] = '\0';  /* terminate buffer */
       printf( "Rcvd message:%s\n",
 	      //inet_ntoa( (struct in_addr)client.sin_addr ),
 	      buffer );
-      interpret_buffer(buffer,csock);      
+      interpret_buffer(buffer,csock,n);      
     }
   }while(n > 0);
   close(csock);
@@ -111,14 +111,14 @@ void* client_thread(void * arg){
   return NULL;
 }
 
-void interpret_buffer(char * buf, int sock){
+void interpret_buffer(char * buf, int sock, int n){
   char copy[BUFFER_SIZE], *ptr, *prev, readbuf[BUFFER_SIZE], temp[BUFFER_SIZE];
   FILE * file;
   int num;
   DIR * dir;
   struct dirent * dirfile;
 
-  strcpy(copy,buf);
+  memcopy(copy,buf,n+1);
   ptr = strpbrk(copy," \\");
   if(!ptr){
     sendmessage("ERROR: <no such command>\n",sock);
