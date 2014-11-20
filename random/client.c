@@ -39,7 +39,7 @@ int main()
     exit( EXIT_FAILURE );
   }
 
-  char * msg = "hello world";
+  char * msg = "ADD me.txt 20\\nhello wo\0x44rld";
   int n = write( sock, msg, strlen( msg ) );
 fflush( NULL );
   if ( n < strlen( msg ) )

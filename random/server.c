@@ -16,8 +16,10 @@
 #define MAXCLIENTS 20
 
 void* client_thread(void * arg);
-void sendmessage(char * message, int sock);
+void sendmessage(char * message, int sock, int length);
 void interpret_buffer(char * buf, int sock, int n);
+
+pthread_mutex_t lock;
 
 int main(int argc, char ** argv){
   int port,sock,currentconnections = 0,sockdescriptors, * temp, rc;
@@ -60,17 +62,30 @@ int main(int argc, char ** argv){
     exit( EXIT_FAILURE );
   }
   
+  //set up mutex
+  if (pthread_mutex_init(&lock, NULL) != 0){
+    printf("\n mutex init failed\n");
+    return 1;
+  }
+
   //make a listener
   listen(sock,MAXCLIENTS);
+#ifdef DEBUG
   printf( "Listener bound to port %d on addr %s\n", port , inet_ntoa( (struct in_addr)server.sin_addr ));
+#endif
 
   //server loop to run forever
   while(true){
+#ifdef DEBUG
     printf( "PARENT: Blocked on accept()\n" );
+#endif
     clientlen = sizeof(client);
     sockdescriptors = accept(sock,(struct sockaddr *)&client,
 			     (socklen_t*)&clientlen);
+#ifdef DEBUG
     printf( "PARENT: Accepted client connection\n" );
+#endif
+    printf( "recieved incoming connection from %s\n",inet_ntoa(client.sin_addr));
     if(sockdescriptors  < 0){
       continue;
     }
@@ -82,6 +97,9 @@ int main(int argc, char ** argv){
       continue;
     }
     ++currentconnections;
+#ifdef DEBUG
+    printf("%d",currentconnections);
+#endif
   }
   close(sock);
   return EXIT_SUCCESS;
@@ -96,13 +114,10 @@ void* client_thread(void * arg){
     if ( n < 0 ) {
       perror( "recv() failed" );
     } else if ( n == 0 ) {
-      printf( "CHILD %d: Rcvd 0 from recv(); closing socket\n",
-	      getpid() );
+      printf( "[thread %u]Client closed its socket...terminating\n", (unsigned int)pthread_self());
     } else {
       buffer[n] = '\0';  /* terminate buffer */
-      printf( "Rcvd message:%s\n",
-	      //inet_ntoa( (struct in_addr)client.sin_addr ),
-	      buffer );
+      printf( "[thread %u]Rcvd:%s\n",(unsigned int)pthread_self(),buffer );
       interpret_buffer(buffer,csock,n);      
     }
   }while(n > 0);
@@ -112,16 +127,18 @@ void* client_thread(void * arg){
 }
 
 void interpret_buffer(char * buf, int sock, int n){
-  char copy[BUFFER_SIZE], *ptr, *prev, readbuf[BUFFER_SIZE], temp[BUFFER_SIZE];
+  char copy[BUFFER_SIZE], *ptr, *prev, readbuf[BUFFER_SIZE],  msg[BUFFER_SIZE];
   FILE * file;
   int num;
   DIR * dir;
   struct dirent * dirfile;
+  struct stat fileentry;
 
-  memcopy(copy,buf,n+1);
+  memcpy(copy,buf,n+1);
   ptr = strpbrk(copy," \\");
   if(!ptr){
-    sendmessage("ERROR: <no such command>\n",sock);
+    strcpy(msg,"ERROR: <no such command>\n");
+    sendmessage(msg,sock,strlen(msg));
     return;
   }
 
@@ -138,7 +155,8 @@ void interpret_buffer(char * buf, int sock, int n){
     *ptr = '\0'; ++ptr;
     file = fopen(prev,"rb");
     if(file){
-      sendmessage("ERROR: file exist\n",sock);
+      strcpy(msg,"ERROR: file exist\n");
+      sendmessage(msg,sock,strlen(msg));
       return;
     }
     file = fopen(prev,"wb");
@@ -146,9 +164,12 @@ void interpret_buffer(char * buf, int sock, int n){
     
     prev = ptr; ptr = strpbrk(ptr,"\\"); 
     *ptr = '\0'; ptr+=2;
-    num = atoi(prev);//lock file here
+    num = atoi(prev);//lock both read and write lock
+    pthread_mutex_lock(&lock);
     fwrite(ptr,sizeof(char),num,file);
-    sendmessage("ACK",sock);//release lock here
+    pthread_mutex_unlock(&lock);
+    strcpy(msg,"ACK\n");//release read and write lock 
+    sendmessage(msg,sock,strlen(msg));
     fclose(file);
   }else if(!strcmp(copy,"APPEND")){
     //append command
@@ -156,46 +177,59 @@ void interpret_buffer(char * buf, int sock, int n){
     *ptr = '\0'; ++ptr;
     file = fopen(prev,"rb");
     if(!file){
-      sendmessage("ERROR: file does not exist\n",sock);
+      strcpy(msg,"ERROR: file does not exist\n");
+      sendmessage(msg,sock,strlen(msg));
       return;
     }
     fclose(file);
     file = fopen(prev,"ab");
     prev = ptr; ptr = strpbrk(ptr,"\\");
     *ptr = '\0'; ptr+=2;
-    num = atoi(prev);//lock file here
+    num = atoi(prev);//wait until file is unlocked then lock file here
+    pthread_mutex_lock(&lock);
     fwrite(ptr,sizeof(char),num,file);
-    sendmessage("ACK",sock);//release lock here
+    pthread_mutex_unlock(&lock);
+    strcpy(msg,"ACK\n");//release lock here
+    sendmessage(msg,sock,strlen(msg));
     fclose(file);
   }else if(!strcmp(copy,"READ")){
     //read command
     ptr = strpbrk(ptr,"\\ ");
-    *ptr = '\0'; ptr+=2;
+    *ptr = '\0'; ptr+=2;//wait until the file is not locked
     file = fopen(prev,"rb");
     if(!file){
-      sendmessage("ERROR: file does not exist\n",sock);
+      strcpy(msg,"ERROR: file does not exist\n");
+      sendmessage(msg,sock,strlen(msg));
       return;
     }
-    fgets(readbuf,BUFFER_SIZE,file);
-    num = strlen(readbuf);
-    sprintf(temp,"ACK %d\n",num);
-    sendmessage(temp,sock);
-    sendmessage(readbuf,sock);
+    pthread_mutex_lock(&lock);
+    num = fread(readbuf,sizeof(char),BUFFER_SIZE,file);
+    pthread_mutex_unlock(&lock);    
+    sprintf(msg,"ACK %d\n",num);
+    sendmessage(msg,sock,strlen(msg));
+    strcat(readbuf,"\n");
+    sendmessage(readbuf,sock,num + 1);
     fclose(file);
   }else if(!strcmp(copy,"LIST")){
     //List command
     dir = opendir(".");
     num = 0;
     while((dirfile = readdir( dir ) ) != NULL ){
-      ++num;
+      lstat(dirfile->d_name,&fileentry);
+      if(S_ISREG(fileentry.st_mode)){
+	++num;
+      }
     }
     closedir(dir);
-    sprintf(temp,"%d\n",num);
-    sendmessage(temp,sock);
+    sprintf(msg,"%d\n",num);
+    sendmessage(msg,sock,strlen(msg));
     dir = opendir(".");
     while((dirfile = readdir( dir ) ) != NULL ){
-      sprintf(temp,"%s\n",dirfile->d_name);
-      sendmessage(temp,sock);
+      lstat(dirfile->d_name,&fileentry);
+      if(S_ISREG(fileentry.st_mode)){
+	sprintf(msg,"%s\n",dirfile->d_name);
+	sendmessage(msg,sock,strlen(msg));
+      }
     }
     closedir(dir);
   }else if(!strcmp(copy,"DELETE")){
@@ -204,24 +238,34 @@ void interpret_buffer(char * buf, int sock, int n){
     *ptr = '\0'; ptr+=2;
     file = fopen(prev,"rb");
     if(!file){
-      sendmessage("ERROR: file does not exist\n",sock);
+      strcpy(msg,"ERROR: file does not exist\n");
+      sendmessage(msg,sock,strlen(msg));
       return;
     }
     fclose(file);
+    pthread_mutex_lock(&lock);
     remove(prev);
-    sendmessage("ACK",sock);
+    pthread_mutex_unlock(&lock);
+    strcpy(msg,"ACK\n");
+    sendmessage(msg,sock,strlen(msg));
   }else{
     //not a command
-    sendmessage("ERROR: <no such command>\n",sock);
+    strcpy(msg,"ERROR: <no such command>\n");
+    sendmessage(msg,sock,strlen(msg));
   }
 }
 
-void sendmessage(char * message, int sock){
-  int n;
-  n = send( sock, message, strlen(message), 0 );
+void sendmessage(char * message, int sock,int length){
+  int i;
+  send( sock, message, length, 0 );
   fflush( NULL );
-  if ( n != strlen(message) ) {
-    perror( "send() failed" );
+#ifdef DEBUG
+  printf("length = %d\n",length);
+#endif
+  printf("[thread %u]sent:",(unsigned int)pthread_self());
+  for(i = 0; i < length; ++i){
+    printf("%c",message[i]);
   }
+  printf("\n");
   return;
 }
