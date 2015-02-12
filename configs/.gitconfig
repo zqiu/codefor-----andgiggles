@@ -1,0 +1,24 @@
+[user]
+	email = zqiu1994@gmail.com
+	name = zqiu
+[core]
+	editor = emacs
+[color]
+	ui = auto
+[color "diff"]
+       meta = green cyan bold
+       old = yellow bold
+       new = cyan bold
+       frag = yellow cyan bold
+[color "status"]
+       meta = green cyan bold
+       added =  cyan bold
+       changed = yellow bold
+       untracked = yellow cyan bold
+[color "branch"]
+       meta = green cyan bold
+       current = cyan bold ul
+       local = cyan bold
+       remote = yellow bold 
+[push]
+	default = simple
