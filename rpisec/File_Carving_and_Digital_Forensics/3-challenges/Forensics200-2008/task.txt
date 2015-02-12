@@ -1,0 +1,3 @@
+Find the key.
+
+Originally from DEF CON quals 2008: http://nopsr.us/ctf2008qual/forensics200-20c6d7dee480b31b28802f2c3b951313

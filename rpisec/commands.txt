@@ -1,0 +1,24 @@
+"`perl -e 'print "A"x100 . "\x08"'`" <- prints A's 100 times and the x08
+export HI="`perl -e 'print "A"x64'`" <- sets HI to 64 A's
+objdump -t a.exe	 	     <- finds all the symbol tables in a.exe
+hi.txt | grep "win" 		     <- will find a win in hi.txt
+
+
+useful command in gdb
+-info
+-break
+-run
+-delete breakpoints
+-chmod
+
+format string
+%100x 				     <- 100 balnks and then hexadecimal
+
+%129\$x                              <- get's the 129th thing in the stack
+
+netstat
+nmap
+ncat
+cron
+users
+whoami

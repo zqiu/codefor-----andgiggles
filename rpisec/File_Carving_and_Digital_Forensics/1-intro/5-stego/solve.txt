@@ -1,0 +1,2 @@
+1 is a png. convert to ppm
+00 and ff O if 0 1 if 255 convert string to binary

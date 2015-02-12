@@ -1,0 +1,3 @@
+same this is a rar file.
+whe you extract it gives you a.txt
+base64 decoder on it

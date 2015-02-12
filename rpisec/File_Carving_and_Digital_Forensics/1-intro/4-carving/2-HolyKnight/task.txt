@@ -1,0 +1,5 @@
+Find the URL.
+
+Originally:
+from http://too.hackyou.ctf.su/tasks/holyknight
+"Under the crown thou shall find the answer."

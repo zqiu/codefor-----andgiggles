@@ -1,0 +1,3 @@
+Find the key.
+
+Originally from DEF CON quals 2006: http://nopsr.us/ctf2006prequal/Forensics100.tgz

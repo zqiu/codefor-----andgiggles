@@ -1,0 +1,14 @@
+disass
+b * instruction
+info register
+info functions
+
+
+
+
+cat keeps stdin open
+
+nubzf1rst0verfl0w
+c0ntr0lfl0wh4x0r
+
+ssh warzone.rpis.ec

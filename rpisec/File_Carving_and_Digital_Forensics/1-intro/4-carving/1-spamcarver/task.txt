@@ -1,0 +1,4 @@
+Find the key.
+
+Originally from picoCTF 2013
+https://2013.picoctf.com/problems/spamcarver.jpg
