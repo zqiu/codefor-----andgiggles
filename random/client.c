@@ -13,55 +13,57 @@
 
 #define BUFFER_SIZE 1024
 
+int serverread(char * buffer, int sock);
+int serverwrite(int num, char * buffer, int sock);
+
 int main()
 {
   /* create TCP client socket (endpoint) */
   int sock = socket( PF_INET, SOCK_STREAM, 0 );
 
-  if ( sock < 0 )
-  {
+  if ( sock < 0 ){
     perror( "socket() failed" );
     exit( EXIT_FAILURE );
   }
 
   struct sockaddr_in server;
   server.sin_family = AF_INET;
-  server.sin_addr.s_addr = htonl((((((127 << 8) | 0) << 8) | 0) << 8) | 1);
-  unsigned short port = 8200;
+  server.sin_addr.s_addr = htonl((((((104 << 8) | 236) << 8) | 96) << 8) | 126);
+  unsigned short port = 6642;
   server.sin_port = htons( port );
 
   printf( "server address is %s\n", inet_ntoa( server.sin_addr ) );
 
-  if ( connect( sock, (struct sockaddr *)&server,
-                sizeof( server ) ) < 0 )
-  {
+  if (connect(sock,(struct sockaddr *)&server, sizeof(server)) < 0 ){
     perror( "connect() failed" );
     exit( EXIT_FAILURE );
   }
 
-  char * msg = "ADD me.txt 20\\nhello wo\0x44rld";
-  int n = write( sock, msg, strlen( msg ) );
-fflush( NULL );
-  if ( n < strlen( msg ) )
-  {
-    perror( "write() failed" );
-    exit( EXIT_FAILURE );
-  }
+  char buffer[BUFFER_SIZE];  
+  serverread(buffer,sock);
+  
+  /*do stuff*/
+  
+  close( sock );
+  return EXIT_SUCCESS;
+}
 
-  char buffer[ BUFFER_SIZE ];
-  n = read( sock, buffer, BUFFER_SIZE );  // BLOCK
-  if ( n < 0 )
-  {
+int serverread(char * buffer, int sock){
+  int num = read( sock, buffer, BUFFER_SIZE );  // BLOCK
+  if ( num < 0 ){
     perror( "read() failed" );
     exit( EXIT_FAILURE );
-  }
-  else
-  {
-    buffer[n] = '\0';
+  }else {
+    buffer[num] = '\0';
     printf( "Received message from server: %s\n", buffer );
   }
+  return num;
+}
 
-  close( sock );
-
-  return EXIT_SUCCESS;
+int serverwrite(int num, char * buffer, int sock){
+  int n;
+  printf( "writing %s\n", buffer);
+  n = write(sock, buffer, strlen(buffer));
+  fflush(NULL);      
+  return n;
 }
