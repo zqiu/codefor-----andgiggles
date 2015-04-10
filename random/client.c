@@ -14,7 +14,7 @@
 #define BUFFER_SIZE 1024
 
 int serverread(char * buffer, int sock);
-int serverwrite(char * buffer, int sock);
+int serverwrite(char * buffer, int sock, int size);
 
 int main()
 {
@@ -60,10 +60,10 @@ int serverread(char * buffer, int sock){
   return num;
 }
 
-int serverwrite(char * buffer, int sock){
+int serverwrite(char * buffer, int sock, int size){
   int n;
   printf( "writing %s\n", buffer);
-  n = write(sock, buffer, strlen(buffer));
+  n = write(sock, buffer, size);
   fflush(NULL);      
   return n;
 }
