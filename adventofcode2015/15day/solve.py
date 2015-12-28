@@ -24,6 +24,13 @@ def find_best_combo(ingredentcount):
 				ans *= currentproperty
 		return ans
 	
+	#optimization when we reach all ingredents but one, we know amount of that ingredent
+	if len(ingredentcount) == (len(data) - 1):
+		ingredentcount.append(numteaspoons - sum(ingredentcount))
+		ret = find_best_combo(ingredentcount)
+		ingredentcount.pop()
+		return ret
+		
 	#reduction
 	currenttotal = sum(ingredentcount)
 	score = 0
@@ -39,5 +46,4 @@ for line in file:
 	line = line[:-1].replace(",","").split(" ")
 	data.append((int(line[2]),int(line[4]),int(line[6]),int(line[8])))
 	cal.append(int(line[10]))
-	
 print find_best_combo([])
