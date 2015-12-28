@@ -13,29 +13,28 @@ def find_best_combo(ingredentcount):
 				calories += cal[i] * ingredentcount[i]
 			if calories != 500:
 				return 0
-		properties = []
-		for i in range(len(data[0])):
-			properties.append(0)	
-		for i in range(len(ingredentcount)):
-			for j in range(len(data[0])):
-				properties[j] += ingredentcount[i] * data[i][j]
 		ans = 1
-		for val in properties:
-			if val < 0:
+		for i in range(len(data[0])):
+			currentproperty = 0
+			for j in range(len(ingredentcount)):
+				currentproperty += ingredentcount[j] * data[j][i]
+			if currentproperty < 0:
 				return 0
 			else:
-				ans *= val
+				ans *= currentproperty
 		return ans
 	
 	#reduction
 	currenttotal = sum(ingredentcount)
-	outcomes = []
+	score = 0
 	for i in range(numteaspoons + 1 - currenttotal):
-		copy = list(ingredentcount)
-		copy.append(i)
-		outcomes.append(find_best_combo(copy))
-	return max(outcomes)
-	
+		ingredentcount.append(i)
+		possible_score = find_best_combo(ingredentcount)
+		ingredentcount.pop()
+		if score < possible_score:
+			score = possible_score
+	return score
+		
 for line in file:
 	line = line[:-1].replace(",","").split(" ")
 	data.append((int(line[2]),int(line[4]),int(line[6]),int(line[8])))
