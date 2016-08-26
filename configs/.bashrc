@@ -90,6 +90,8 @@ alias la='ls -A'
 alias l='ls -CF'
 alias desk='cd ~/Desktop'
 alias down='cd ~/Downloads'
+alias listp='sudo netstat -tulpn'
+alias clip='xclip -selection clipboard'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
