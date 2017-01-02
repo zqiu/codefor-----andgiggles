@@ -8,11 +8,11 @@
 #dilithium -> c&d
 
 encoding = "0123456789abcd"
-floor1 = "0135abcd"
+floor1 = "0135"
 floor2 = "24"
 floor3 = "6789"
 floor4 = ""
-listofsets = []
+listofsets = set()
 
 def getval(input):
     return encoding.find(input)
@@ -39,9 +39,8 @@ def checkfloor(coor,current,prevfloor):
                         if i == (len(data) - 1) or getval(data[i + 1]) != char+1:
                             return False
     #don't do things that we already went through
-    for a in listofsets:
-        if coor in a:
-            return False
+    if coor in listofsets:
+        return False
     return True
 
 def swapup(op,low,high,index):
@@ -108,17 +107,24 @@ possible.add((floor1,floor2,floor3,floor4,0))
 solved = False
 ans = 0
 
-while solved == False:
+while not solved:
     next = set()
     for val in possible:
         if val[4] != 3:
             goupfloor(val,next)
         if val[4] != 0:
-            godownfloor(val,next)
+            trylower = True
+            for i in range(val[4]):
+                if val[i] != "":
+                    break
+                if i == (val[4] - 1):
+                    trylower = False
+            if trylower:
+                godownfloor(val,next)
     ans += 1
     if ans%10 == 0:
         print "tried %d"%ans
-    listofsets.append(possible)
+    listofsets = listofsets.union(possible)
     possible = next
     for val in possible:
         if val[0] == "" and val[1] == "" and val[2] == "":
