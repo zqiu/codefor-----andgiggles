@@ -6,7 +6,6 @@ for line in f:
 	for i in range(size):
 		if line[i] == line[(i+1)%size]:
 			ans += int(line[i])
-	for i in range(size):
 		if line[i] == line[ (i + size/2) % size]:
 			ans2 += int(line[i])
 print ans
