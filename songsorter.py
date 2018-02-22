@@ -13,7 +13,7 @@ def capitalize(s):
 def cap(s):
 	firstchar = 0
 	for i in range(len(s)):
-		if s[i].isalpha():
+		if s[i].isalnum():
 			firstchar = i
 			break
 	if firstchar == 0:
@@ -21,8 +21,14 @@ def cap(s):
 	else:
 		return s[0]+s[i:].capitalize()
 
+def isempty(s):
+	for char in s:
+		if char.isalnum():
+			return False
+	return True
+		
 for line in f:
-	if len(line) == 1:
+	if isempty(line):
 		continue
 	elif line[0] == '\t':
 		songs.append(capitalize(line))
